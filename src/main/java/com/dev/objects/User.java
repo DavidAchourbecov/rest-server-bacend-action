@@ -16,12 +16,24 @@ public class User {
     @Column
     private String token;
 
+    @Column
+    private Boolean isAdmin;
+
+    public Boolean getAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(Boolean admin) {
+        isAdmin = admin;
+    }
+
     public User() {
     }
 
-    public User(String username, String token) {
+    public User(String username, String token, Boolean isAdmin) {
         this.username = username;
         this.token = token;
+        this.isAdmin = isAdmin;
     }
 
     public int getId() {

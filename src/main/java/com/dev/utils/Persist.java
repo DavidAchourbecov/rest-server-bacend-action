@@ -47,8 +47,6 @@ public class Persist {
         session.save(creditManagement);
         session.close();
 
-
-
     }
 
 
