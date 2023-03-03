@@ -1,9 +1,7 @@
 
 package com.dev.utils;
 
-import com.dev.objects.CreditManagement;
-import com.dev.objects.Message;
-import com.dev.objects.User;
+import com.dev.objects.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +66,24 @@ public class Persist {
         List<User> allUsers = session.createQuery("FROM User ").list();
         session.close();
         return allUsers;
+    }
+
+    public List<Product> getAllOpenOrCloseTrades (boolean openToAction) {
+        Session session = sessionFactory.openSession();
+        List<Product> products = session.createQuery("FROM Product WHERE openToAction = :openToAction")
+                .setParameter("openToAction", openToAction)
+                .list();
+        session.close();
+        return products;
+    }
+
+    public  List<Action> getAllOpenOrCloseActions (Boolean openToAction){
+        Session session = sessionFactory.openSession();
+        List<Action> actions = session.createQuery("FROM Action WHERE product.openToAction   = :openToAction")
+                .setParameter("openToAction", openToAction)
+                .list();
+        session.close();
+        return actions;
     }
 
     public User getUserByToken (String token) {

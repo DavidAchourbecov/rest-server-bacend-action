@@ -1,53 +1,94 @@
 package com.dev.controllers;
 
 
+import com.dev.utils.Persist;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 @Controller
 public class LifeStatisticsController {
-    /*@GetMapping("/live-statistics")
-    public SseEmitter liveStatistics() {
-        SseEmitter emitter = new SseEmitter(TimeUnit.MINUTES.toMillis(30)); // Set timeout to 30 minutes
+    @Autowired
+    private Persist persist;
 
-        // Create a new thread to periodically update the live statistics
-        Thread thread = new Thread(() -> {
-            while (!emitter.isClosed()) {
-                try {
-                    // Fetch the live statistics from the system
-                    int numUsers = userService.getNumUsers();
-                    int numOpenTenders = tenderService.getNumOpenTenders();
-                    int numClosedTenders = tenderService.getNumClosedTenders();
-                    int numOpenBids = bidService.getNumOpenBids();
-                    int numClosedBids = bidService.getNumClosedBids();
+    private List<SseEmitter> emitterList = new ArrayList<>();
+    private Map<String, SseEmitter> emitterMap = new HashMap<>();
 
-                    // Create a message with the live statistics
-                    String message = String.format("Users: %d, Open Tenders: %d, Closed Tenders: %d, Open Bids: %d, Closed Bids: %d",
-                            numUsers, numOpenTenders, numClosedTenders, numOpenBids, numClosedBids);
+   /* @RequestMapping (value = "/sse-statist", method = RequestMethod.GET)
+    public SseEmitter handle() {
+        SseEmitter sseEmitter = new SseEmitter(10L * 60 * 1000);
+        String key = "test";
+        this.emitterMap.put(key, sseEmitter);
+        return sseEmitter;
+    }
 
-                    // Send the message to the client using the SseEmitter
-                    emitter.send(SseEmitter.event().data(message));
-
-                    // Wait for 5 seconds before sending the next message
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(5));
-                } catch (Exception e) {
-                    emitter.completeWithError(e);
-                    return;
-                }
+    @Scheduled(fixedRate = 1000)
+    public void sendUpdates() {
+        for (Map.Entry<String, SseEmitter> entry : emitterMap.entrySet()) {
+            SseEmitter emitter = entry.getValue();
+            try {
+                emitter.send("test");
+            } catch (IOException e) {
+                emitter.completeWithError(e);
+                emitterMap.remove(entry.getKey());
             }
-        });
-
-        thread.start();
-
-        return emitter;
+        }
     }*/
+
+
+    @RequestMapping(value = "/sse-statist", method = RequestMethod.GET)
+    public SseEmitter handle() {
+        SseEmitter sseEmitter = new SseEmitter(10L * 60 * 1000);
+        emitterList.add(sseEmitter);
+        sseEmitter.onCompletion(() -> emitterList.remove(sseEmitter));
+        sseEmitter.onTimeout(() -> emitterList.remove(sseEmitter));
+        return sseEmitter;
+    }
+
+    @Scheduled(fixedRate = 5000)
+
+    public void sendUpdates() {
+        for (SseEmitter emitter : emitterList) {
+            try {
+
+                emitter.send("test");
+            } catch (IOException e) {
+                emitter.completeWithError(e);
+                emitterList.remove(emitter);
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
