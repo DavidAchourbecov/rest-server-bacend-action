@@ -48,6 +48,9 @@ public class TestConfig {
         }
         configuration.addAnnotatedClass(User.class);
         configuration.addAnnotatedClass(CreditManagement.class);
+        configuration.addAnnotatedClass(Product.class);
+        configuration.addAnnotatedClass(Action.class);
+
         configuration.addAnnotatedClass(Message.class);
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties()).build();
