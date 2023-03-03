@@ -13,42 +13,80 @@ import java.util.concurrent.TimeUnit;
 
 @Controller
 public class LifeStatisticsController {
-    @GetMapping("/live-statistics")
-    public SseEmitter liveStatistics() {
-        SseEmitter emitter = new SseEmitter(TimeUnit.MINUTES.toMillis(30)); // Set timeout to 30 minutes
+    //private SseEmitter emitter = new SseEmitter();
 
-        // Create a new thread to periodically update the live statistics
-        Thread thread = new Thread(() -> {
-            while (!emitter.isClosed()) {
-                try {
-                    // Fetch the live statistics from the system
-                    int numUsers = userService.getNumUsers();
-                    int numOpenTenders = tenderService.getNumOpenTenders();
-                    int numClosedTenders = tenderService.getNumClosedTenders();
-                    int numOpenBids = bidService.getNumOpenBids();
-                    int numClosedBids = bidService.getNumClosedBids();
 
-                    // Create a message with the live statistics
-                    String message = String.format("Users: %d, Open Tenders: %d, Closed Tenders: %d, Open Bids: %d, Closed Bids: %d",
-                            numUsers, numOpenTenders, numClosedTenders, numOpenBids, numClosedBids);
+    @Autowired
+    private Persist persist;
 
-                    // Send the message to the client using the SseEmitter
-                    emitter.send(SseEmitter.event().data(message));
 
-                    // Wait for 5 seconds before sending the next message
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(5));
-                } catch (Exception e) {
-                    emitter.completeWithError(e);
-                    return;
-                }
-            }
-        });
-
-        thread.start();
+    /*@RequestMapping(value = "/get-stat", method = RequestMethod.GET)
+    public SseEmitter getStats() {
 
         return emitter;
+    }*/
+/*
+    @Scheduled(fixedRate = 5000) // Update stats every 5 seconds
+    public void updateStats() {
+        // Fetch stats from database or other sources
+
+
+        int numUsers = persist.getAllUsers().size();
+        int numOpenTenders=  persist.getAllOpenOrCloseTenders(true).size();
+        int numClosedTenders = persist.getAllOpenOrCloseTenders(false).size();
+        int numOpenBids = persist.getAllOpenOrCloseActions(true).size();
+        int numClosedBids = persist.getAllOpenOrCloseActions(false).size();
+
+
+        // Create a JSON object with the updated stats
+        JsonObject statsJson = new JsonObject();
+        statsJson.addProperty("numUsers", numUsers);
+        statsJson.addProperty("numOpenTenders", numOpenTenders);
+       statsJson.addProperty("numClosedTenders", numClosedTenders);
+        statsJson.addProperty("numOpenBids", numOpenBids);
+        statsJson.addProperty("numClosedBids", numClosedBids);
+        // Send the updated stats to all SSE clients
+
+            try {
+                emitter.send(SseEmitter.event().data(statsJson.toString()));
+                //emitter.complete();
+            } catch (IOException e) {
+                 // Remove the SSE client if it's no longer reachable
+            }
+        }*/
+
+
+    @GetMapping("/statistics")
+
+    public JsonObject getStatistics() {
+        int numUsers = persist.getAllUsers().size();
+        int numOpenTenders=  persist.getAllOpenOrCloseTenders(true).size();
+        int numClosedTenders = persist.getAllOpenOrCloseTenders(false).size();
+        int numOpenBids = persist.getAllOpenOrCloseActions(true).size();
+        int numClosedBids = persist.getAllOpenOrCloseActions(false).size();
+
+
+        // Create a JSON object with the updated stats
+        JsonObject statsJson = new JsonObject();
+        statsJson.addProperty("numUsers", numUsers);
+        statsJson.addProperty("numOpenTenders", numOpenTenders);
+        statsJson.addProperty("numClosedTenders", numClosedTenders);
+        statsJson.addProperty("numOpenBids", numOpenBids);
+        statsJson.addProperty("numClosedBids", numClosedBids);
+        return statsJson;
     }
 
 
 
-}
+
+    @GetMapping("/statistics/stream")
+
+    public SseEmitter streamStatistics() {
+        SseEmitter emitter = new SseEmitter();
+        StatisticsHandler.addEmitter(emitter);
+        emitter.onCompletion(() -> StatisticsHandler.removeEmitter(emitter));
+        emitter.onTimeout(() -> StatisticsHandler.removeEmitter(emitter));
+        return emitter;
+    }
+    }
+

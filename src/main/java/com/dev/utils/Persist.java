@@ -1,9 +1,7 @@
 
 package com.dev.utils;
 
-import com.dev.objects.CreditManagement;
-import com.dev.objects.Message;
-import com.dev.objects.User;
+import com.dev.objects.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +85,7 @@ public class Persist {
         session.close();
         return messages;
     }
+
 
     public List<Message> getConversation (String token, int recipientId) {
         Session session = sessionFactory.openSession();

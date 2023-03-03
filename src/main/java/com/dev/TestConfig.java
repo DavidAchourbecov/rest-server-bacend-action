@@ -1,8 +1,6 @@
 package com.dev;
 
-import com.dev.objects.CreditManagement;
-import com.dev.objects.Message;
-import com.dev.objects.User;
+import com.dev.objects.*;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Environment;
