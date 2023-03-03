@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 @Controller
 public class LifeStatisticsController {
-    @GetMapping("/live-statistics")
+    /*@GetMapping("/live-statistics")
     public SseEmitter liveStatistics() {
         SseEmitter emitter = new SseEmitter(TimeUnit.MINUTES.toMillis(30)); // Set timeout to 30 minutes
 
@@ -47,7 +47,7 @@ public class LifeStatisticsController {
         thread.start();
 
         return emitter;
-    }
+    }*/
 
 
 

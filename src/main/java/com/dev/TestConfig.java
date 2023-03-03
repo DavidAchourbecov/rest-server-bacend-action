@@ -1,8 +1,6 @@
 package com.dev;
 
-import com.dev.objects.CreditManagement;
-import com.dev.objects.Message;
-import com.dev.objects.User;
+import com.dev.objects.*;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Environment;
@@ -50,6 +48,9 @@ public class TestConfig {
         }
         configuration.addAnnotatedClass(User.class);
         configuration.addAnnotatedClass(CreditManagement.class);
+        configuration.addAnnotatedClass(Product.class);
+        configuration.addAnnotatedClass(Action.class);
+
         configuration.addAnnotatedClass(Message.class);
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties()).build();

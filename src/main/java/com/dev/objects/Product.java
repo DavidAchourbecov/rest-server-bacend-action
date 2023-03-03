@@ -1,6 +1,9 @@
 package com.dev.objects;
 
+import com.mysql.fabric.xmlrpc.base.Data;
+
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table (name = "products")
@@ -10,10 +13,37 @@ public class Product {
     @Column
     private int id;
 
+    @Column(name = "product_name")
+    private String productName;
+
+    @Column
+    private String content;
+
+    @Column(name = "image")
+    private String imageLink;
+
+    @Column(name = "minimum_price")
+    private String minimumPrice;
+
+    @Column (name = "sailed")
+    private String  sailed;
+
+    @Column(name = "open_to_action")
+    private Boolean openToAction;
+
+    @Column(name = "publish_date")
+    private Date publishDate;
+
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+
     public Product() {
     }
 
-    public Product( String productName, String content, String imageLink, String minimumPrice, String sailed, Boolean openToAction, Object publishDate, User user) {
+    public Product(String productName, String content, String imageLink, String minimumPrice, String sailed, Boolean openToAction, Date publishDate, User user) {
         this.productName = productName;
         this.content = content;
         this.imageLink = imageLink;
@@ -80,11 +110,11 @@ public class Product {
         this.openToAction = openToAction;
     }
 
-    public Object getPublishDate() {
+    public Date getPublishDate() {
         return publishDate;
     }
 
-    public void setPublishDate(Object publishDate) {
+    public void setPublishDate(Date publishDate) {
         this.publishDate = publishDate;
     }
 
@@ -95,30 +125,4 @@ public class Product {
     public void setUser(User user) {
         this.user = user;
     }
-
-    @Column(name = "product_name")
-    private String productName;
-
-    @Column
-    private String content;
-
-    @Column(name = "image")
-    private String imageLink;
-
-    @Column(name = "minimum_price")
-    private String minimumPrice;
-
-    @Column (name = "sailed")
-    private String  sailed;
-
-    @Column(name = "open_to_action")
-    private Boolean openToAction;
-
-    @Column(name = "publish_date")
-    private Object publishDate;
-
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
 }
