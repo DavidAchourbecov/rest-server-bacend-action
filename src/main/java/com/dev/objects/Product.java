@@ -43,14 +43,14 @@ public class Product {
     public Product() {
     }
 
-    public Product(String productName, String content, String imageLink, String minimumPrice, String sailed, Boolean openToAction, Date publishDate, User user) {
+    public Product(String productName, String content, String imageLink, String minimumPrice, String sailed, Boolean openToAction, User user) {
         this.productName = productName;
         this.content = content;
         this.imageLink = imageLink;
         this.minimumPrice = minimumPrice;
         this.sailed = sailed;
         this.openToAction = openToAction;
-        this.publishDate = publishDate;
+        this.publishDate = new Date();
         this.user = user;
     }
 

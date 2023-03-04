@@ -1,6 +1,8 @@
 package com.dev.controllers;
 
 
+import com.dev.responses.BasicResponse;
+import com.dev.responses.StatisticsResponse;
 import com.dev.utils.Persist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -28,26 +30,6 @@ public class LifeStatisticsController {
     private List<SseEmitter> emitterList = new ArrayList<>();
     private Map<String, SseEmitter> emitterMap = new HashMap<>();
 
-   /* @RequestMapping (value = "/sse-statist", method = RequestMethod.GET)
-    public SseEmitter handle() {
-        SseEmitter sseEmitter = new SseEmitter(10L * 60 * 1000);
-        String key = "test";
-        this.emitterMap.put(key, sseEmitter);
-        return sseEmitter;
-    }
-
-    @Scheduled(fixedRate = 1000)
-    public void sendUpdates() {
-        for (Map.Entry<String, SseEmitter> entry : emitterMap.entrySet()) {
-            SseEmitter emitter = entry.getValue();
-            try {
-                emitter.send("test");
-            } catch (IOException e) {
-                emitter.completeWithError(e);
-                emitterMap.remove(entry.getKey());
-            }
-        }
-    }*/
 
 
     @RequestMapping(value = "/sse-statist", method = RequestMethod.GET)
@@ -59,19 +41,36 @@ public class LifeStatisticsController {
         return sseEmitter;
     }
 
-    @Scheduled(fixedRate = 5000)
 
-    public void sendUpdates() {
+
+    public void sendUpdatesStatistics(BasicResponse response) {
         for (SseEmitter emitter : emitterList) {
             try {
-
-                emitter.send("test");
+                emitter.send(response);
             } catch (IOException e) {
                 emitter.completeWithError(e);
                 emitterList.remove(emitter);
             }
         }
     }
+
+
+    public BasicResponse getStatistics() {
+        BasicResponse response = null;
+        int usersCount = persist.getAllUsers().size();
+        int numOpenTenders = persist.getAllOpenOrCloseTrades(true).size();
+        int numCloseTenders = persist.getAllOpenOrCloseTrades(false).size();
+        int numOpenBids = persist.getAllOpenOrCloseActions(true).size();
+        int numCloseBids = persist.getAllOpenOrCloseActions(false).size();
+        response = new StatisticsResponse(true,null,usersCount,numOpenTenders,numCloseTenders,numOpenBids,numCloseBids);
+        return response;
+    }
+
+
+   /* public BasicResponse getMainTableByUserId(String token) {
+
+
+    }*/
 
 
 
