@@ -89,6 +89,7 @@ public class Action {
     @Column
     private int id;
 
+
     @ManyToOne
     @JoinColumn(name = "suggester_id")
     private User userSuggest;
