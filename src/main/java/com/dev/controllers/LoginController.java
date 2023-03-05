@@ -22,8 +22,11 @@ public class LoginController {
     @Autowired
     private Persist persist;
 
+    @Autowired
+    private LifeStatisticsController lifeStatisticsController;
+
     @RequestMapping(value = "sign-up")
-    public BasicResponse signUp (String username, String password) {
+    public BasicResponse signUp (String username, String password,boolean isAdmin){
         BasicResponse basicResponse = new BasicResponse();
         boolean success = false;
         Integer errorCode = null;
@@ -32,13 +35,15 @@ public class LoginController {
                 if (utils.isStrongPassword(password)) {
                     User fromDb = persist.getUserByUsername(username);
                     if (fromDb == null) {
-                        User toAdd = new User(username, utils.createHash(username, password),false);
+                        User toAdd = new User(username, utils.createHash(username, password),isAdmin);
 
                       int userId=  persist.saveUser(toAdd);
                        toAdd.setId(userId);
                         CreditManagement creditManagement =new CreditManagement(1000,toAdd);
                       persist.createAmountUser(creditManagement);
                         success = true;
+                        BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
+                        this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
                     } else {
                         errorCode = ERROR_USERNAME_ALREADY_EXISTS;
                     }
@@ -79,6 +84,17 @@ public class LoginController {
         }
         basicResponse.setSuccess(success);
         basicResponse.setErrorCode(errorCode);
+        return basicResponse;
+    }
+
+    @RequestMapping (value = "statist")
+    public BasicResponse getStatistics () {
+        BasicResponse basicResponse = null;
+        if (this.lifeStatisticsController.getStatistics() != null) {
+            basicResponse = this.lifeStatisticsController.getStatistics();
+        } else {
+            basicResponse = new BasicResponse(false, ERROR_STATISTICS);
+        }
         return basicResponse;
     }
 }

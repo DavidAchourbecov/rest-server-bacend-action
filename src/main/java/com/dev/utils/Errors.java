@@ -8,5 +8,7 @@ public class Errors {
     public static final int ERROR_WRONG_LOGIN_CREDS = 1004;
     public static final int ERROR_NO_SUCH_TOKEN = 1005;
     public static final int ERROR_NO_SUCH_RECIPIENT = 1006;
+    public static final int ERROR_STATISTICS = 1007;
+    public static final int ERROR_NO_SUCH_PRODUCT = 1008;
 
 }

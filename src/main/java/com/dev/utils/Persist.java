@@ -68,6 +68,40 @@ public class Persist {
         return allUsers;
     }
 
+    public List<Product> getAllOpenOrCloseTrades (boolean openToAction) {
+        Session session = sessionFactory.openSession();
+        List<Product> products = session.createQuery("FROM Product WHERE openToAction = :openToAction")
+                .setParameter("openToAction", openToAction)
+                .list();
+        session.close();
+        return products;
+    }
+
+    public  List<Action> getAllOpenOrCloseActions (Boolean openToAction){
+        Session session = sessionFactory.openSession();
+        List<Action> actions = session.createQuery("FROM Action WHERE product.openToAction   = :openToAction")
+                .setParameter("openToAction", openToAction)
+                .list();
+        session.close();
+        return actions;
+    }
+
+    public void saveProduct (Product product) {
+        Session session = sessionFactory.openSession();
+        session.save(product);
+        session.close();
+    }
+
+    public Product getProductById (int id) {
+        Session session = sessionFactory.openSession();
+        Product product = (Product) session.createQuery("FROM Product WHERE id = :id")
+                .setParameter("id", id)
+                .uniqueResult();
+        session.close();
+        return product;
+    }
+
+
     public User getUserByToken (String token) {
         Session session = sessionFactory.openSession();
         User user = (User) session.createQuery("From User WHERE token = :token")
