@@ -10,12 +10,14 @@ public class Action {
     public Action() {
     }
 
-    public Action( User userSuggest, Product product, User publisher, Date biddingDate, boolean isWinner) {
+    public Action( User userSuggest,double userSuggestAmount, Product product, User publisher,boolean lastOffer ,Date biddingDate, boolean isWinner) {
         this.userSuggest = userSuggest;
         this.product = product;
         this.publisher = publisher;
         this.biddingDate = biddingDate;
         this.isWinner = isWinner;
+        this.userSuggestAmount = userSuggestAmount;
+        this.lastOffer = lastOffer;
     }
 
     public int getId() {
@@ -66,6 +68,22 @@ public class Action {
         isWinner = winner;
     }
 
+    public double getUserSuggestAmount() {
+        return userSuggestAmount;
+    }
+
+    public void setUserSuggestAmount(double userSuggestAmount) {
+        this.userSuggestAmount = userSuggestAmount;
+    }
+
+    public boolean isLastOffer() {
+        return lastOffer;
+    }
+
+    public void setLastOffer(boolean lastOffer) {
+        this.lastOffer = lastOffer;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
@@ -74,6 +92,9 @@ public class Action {
     @ManyToOne
     @JoinColumn(name = "suggester_id")
     private User userSuggest;
+
+    @Column(name = "amount_suggester")
+    private double userSuggestAmount;
 
 
     @ManyToOne
@@ -85,6 +106,9 @@ public class Action {
     @ManyToOne
     @JoinColumn(name = "publisher_id")
     private User publisher;
+
+    @Column(name = "last_offer")
+    private boolean lastOffer;
 
 
 

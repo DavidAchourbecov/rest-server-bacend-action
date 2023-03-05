@@ -23,10 +23,8 @@ public class Product {
     private String imageLink;
 
     @Column(name = "minimum_price")
-    private String minimumPrice;
+    private double minimumPrice;
 
-    @Column (name = "sailed")
-    private String  sailed;
 
     @Column(name = "open_to_action")
     private Boolean openToAction;
@@ -43,12 +41,11 @@ public class Product {
     public Product() {
     }
 
-    public Product(String productName, String content, String imageLink, String minimumPrice, String sailed, Boolean openToAction, User user) {
+    public Product(String productName, String content, String imageLink, double minimumPrice, Boolean openToAction, User user) {
         this.productName = productName;
         this.content = content;
         this.imageLink = imageLink;
         this.minimumPrice = minimumPrice;
-        this.sailed = sailed;
         this.openToAction = openToAction;
         this.publishDate = new Date();
         this.user = user;
@@ -86,21 +83,14 @@ public class Product {
         this.imageLink = imageLink;
     }
 
-    public String getMinimumPrice() {
+    public double getMinimumPrice() {
         return minimumPrice;
     }
 
-    public void setMinimumPrice(String minimumPrice) {
+    public void setMinimumPrice(double minimumPrice) {
         this.minimumPrice = minimumPrice;
     }
 
-    public String getSailed() {
-        return sailed;
-    }
-
-    public void setSailed(String sailed) {
-        this.sailed = sailed;
-    }
 
     public Boolean getOpenToAction() {
         return openToAction;

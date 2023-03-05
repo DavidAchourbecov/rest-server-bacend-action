@@ -1,11 +1,14 @@
 package com.dev;
 
 import com.dev.objects.*;
+import com.dev.utils.Persist;
+import com.dev.utils.Utils;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
 import org.reflections.Reflections;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -22,6 +25,12 @@ import java.util.Set;
 @Configuration
 @Profile("production")
 public class TestConfig {
+
+    @Autowired
+    private Utils utils;
+
+    @Autowired
+    private Persist persist;
 
     @Bean
     public Properties dataSource() throws Exception {
@@ -65,5 +74,17 @@ public class TestConfig {
         return transactionManager;
     }
 
+    @Bean
+    public void  createAdmin(){
+        User admin = persist.getUserByUsername("admin");
+        if (admin == null){
+            admin = new User("admin",utils.createHash("admin","123456"),true);
+            int id=  persist.saveUser(admin);
+            admin.setId(id);
+            CreditManagement creditManagement = new CreditManagement(0,admin);
+            persist.createAmountUser(creditManagement);
+        }
+
+    }
 
 }

@@ -49,6 +49,7 @@ public class Persist {
 
 
 
+
     public User getUserByUsernameAndToken (String username, String token) {
         User found = null;
         Session session = sessionFactory.openSession();
@@ -86,6 +87,15 @@ public class Persist {
         return actions;
     }
 
+    public  CreditManagement  getCreditManagement (int userId){
+        Session session = sessionFactory.openSession();
+        CreditManagement creditManagement = (CreditManagement) session.createQuery("FROM CreditManagement WHERE user.id = :userId")
+                .setParameter("userId", userId)
+                .uniqueResult();
+        session.close();
+        return creditManagement;
+    }
+
     public void saveProduct (Product product) {
         Session session = sessionFactory.openSession();
         session.save(product);
@@ -99,6 +109,89 @@ public class Persist {
                 .uniqueResult();
         session.close();
         return product;
+    }
+
+    public List<Action>  getActionsByProductId (int id){
+        Session session = sessionFactory.openSession();
+        List<Action> actions = session.createQuery("FROM Action WHERE product.id = :id")
+                .setParameter("id", id)
+                .list();
+        session.close();
+        return actions;
+    }
+
+    public Action updateWinnerActionsByProductIdMaxAmountLastDate (int id){
+        Session session = sessionFactory.openSession();
+        Action action =(Action) session.createQuery("FROM Action WHERE product.id = :id " +
+                "AND userSuggestAmount = (SELECT MAX(userSuggestAmount) FROM Action WHERE product.id = :id2) " +
+                "AND biddingDate = (SELECT MAX(biddingDate) FROM Action WHERE product.id = :id3)")
+                .setParameter("id", id)
+                .setParameter("id2", id)
+                .setParameter("id3", id)
+                .uniqueResult();
+        session.close();
+        action.setWinner(true);
+        updateAction(action);
+        return action;
+
+    }
+
+
+    public void updateCreditManagementToLoserActionByProductId(int id,boolean lastOffer,User userSuggest){
+        Session session = sessionFactory.openSession();
+        List<Action>  action = (List<Action>) session.createQuery("FROM Action WHERE product.id = :id " +
+                "AND userSuggest.id != :userId"
+                + " AND lastOffer = :lastOffer")
+                .setParameter("id", id)
+                .setParameter("userId", userSuggest.getId()).
+                        setParameter("lastOffer", lastOffer)
+                .list();
+        session.close();
+
+        for (Action action1 : action) {
+            action1.setWinner(false);
+            updateAction(action1);
+            CreditManagement creditManagement = getCreditManagement(action1.getUserSuggest().getId());
+            creditManagement.setCreditAmount(creditManagement.getCreditAmount()+action1.getUserSuggestAmount());
+            updateCreditManagement(creditManagement);
+        }
+
+    }
+
+    public void updateCreditManagement(CreditManagement creditManagement){
+        Session session = sessionFactory.openSession();
+        session.update(creditManagement);
+        session.close();
+    }
+
+
+
+
+    public void updateProduct (Product product) {
+        Session session = sessionFactory.openSession();
+        session.update(product);
+        session.close();
+    }
+
+    public void saveAction (Action action) {
+        Session session = sessionFactory.openSession();
+        session.save(action);
+        session.close();
+    }
+
+    public void updateAction (Action action) {
+        Session session = sessionFactory.openSession();
+        session.update(action);
+        session.close();
+    }
+
+
+
+    public void updateAmount (CreditManagement creditManagement) {
+        Session session = sessionFactory.openSession();
+        session.update(creditManagement);
+        session.close();
+
     }
 
 

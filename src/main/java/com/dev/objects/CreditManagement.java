@@ -12,13 +12,13 @@ public class CreditManagement {
     private int id;
 
     @Column
-    private int creditAmount;
+    private double creditAmount;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
 
-    public CreditManagement(int creditAmount, User user) {
+    public CreditManagement(double creditAmount, User user) {
         this.creditAmount = creditAmount;
         this.user = user;
     }
@@ -35,11 +35,11 @@ public class CreditManagement {
         this.id = id;
     }
 
-    public int getCreditAmount() {
+    public double getCreditAmount() {
         return creditAmount;
     }
 
-    public void setCreditAmount(int creditAmount) {
+    public void setCreditAmount(double creditAmount) {
         this.creditAmount = creditAmount;
     }
 
