@@ -120,7 +120,6 @@ public class Persist {
         return messages;
     }
 
-
     public List<Message> getConversation (String token, int recipientId) {
         Session session = sessionFactory.openSession();
         List<Message> messages = session.createQuery(
