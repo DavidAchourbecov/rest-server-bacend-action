@@ -1,5 +1,8 @@
 package com.dev.controllers;
 
+import com.dev.models.ActionModel;
+import com.dev.models.MyProducts;
+import com.dev.models.ProductModel;
 import com.dev.objects.Action;
 import com.dev.objects.CreditManagement;
 import com.dev.objects.Product;
@@ -37,8 +40,6 @@ public class ProductController {
                 basicResponse = new BasicResponse(false, ERROR_NO_CREDIT);
                 return basicResponse;
             }
-
-
             if (creditManagement.getCreditAmount() < minimumPrice) {
                 basicResponse = new BasicResponse(false, ERROR_NOT_ENOUGH_CREDIT);
                 return basicResponse;
@@ -55,10 +56,7 @@ public class ProductController {
                 creditManagementAdmin.setCreditAmount(creditManagementAdmin.getCreditAmount() + 2);
                 persist.updateCreditManagement(creditManagementAdmin);
                 basicResponse = new BasicResponse(true, null);
-
             }
-
-
         } else {
             basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
         }
