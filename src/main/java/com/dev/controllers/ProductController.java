@@ -5,6 +5,7 @@ import com.dev.objects.CreditManagement;
 import com.dev.objects.Product;
 import com.dev.objects.User;
 import com.dev.responses.BasicResponse;
+import com.dev.responses.MyProductsResponse;
 import com.dev.responses.ProductResponse;
 import com.dev.utils.Constants;
 import com.dev.utils.Persist;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.dev.utils.Errors.*;
@@ -71,7 +73,10 @@ public class ProductController {
             Product product = null;
             product = persist.getProductById(productId);
             if (product != null) {
-                basicResponse = new ProductResponse(true, null, product);
+                List<Action> actions = persist.getActionsByProductId(productId);
+                List<Action> myBids =persist.getActionsByProductIdAndUserId(productId,user.getId());
+                ProductModel productModel = new ProductModel(product,actions.size(),myBids);
+                basicResponse = new ProductResponse(true, null,productModel );
             } else {
                 basicResponse = new BasicResponse(false, ERROR_NO_SUCH_PRODUCT);
             }
@@ -105,11 +110,11 @@ public class ProductController {
                   CreditManagement creditManagement=persist.getCreditManagement(user.getId());
                   double amount=this.calculateFeeAmount(action.getUserSuggestAmount());
                   creditManagement.setCreditAmount(amount);
-                  persist.updateAmount(creditManagement);
+                  persist.updateCreditManagement(creditManagement);
                     User admin = persist.getUserByUsername("admin");
                     CreditManagement creditManagementAdmin = persist.getCreditManagement(admin.getId());
                     creditManagementAdmin.setCreditAmount(action.getUserSuggestAmount() - amount);
-                    persist.updateAmount(creditManagementAdmin);
+                    persist.updateCreditManagement(creditManagementAdmin);
 
 
                     basicResponse = new BasicResponse(true, null);
@@ -156,6 +161,23 @@ public class ProductController {
             return action;
 
 
+        }
+        @RequestMapping(value = "get-my-products", method = {RequestMethod.POST, RequestMethod.GET})
+        public BasicResponse getMyProducts(String token) {
+            BasicResponse basicResponse = null;
+            User user = persist.getUserByToken(token);
+            if (user != null) {
+                List<Action> actions = persist.getProductActionsByMaxAmount(user.getId());
+                List <MyProducts> myProducts=new ArrayList<>();
+                for (Action action : actions) {
+                    MyProducts myProduct = new MyProducts(action);
+                    myProducts.add(myProduct);
+                }
+                basicResponse = new MyProductsResponse(true, null, myProducts);
+            } else {
+                basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
+            }
+            return basicResponse;
         }
 
 

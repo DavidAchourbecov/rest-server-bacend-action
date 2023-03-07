@@ -120,6 +120,16 @@ public class Persist {
         return actions;
     }
 
+    public List<Action>  getActionsByProductIdAndUserId (int id,int userId){
+        Session session = sessionFactory.openSession();
+        List<Action> actions = session.createQuery("FROM Action WHERE product.id = :id AND userSuggest.id = :userId")
+                .setParameter("id", id)
+                .setParameter("userId", userId)
+                .list();
+        session.close();
+        return actions;
+    }
+
     public List<Action>  updateWinnerActionsByProductIdMaxAmountLastOffer (int id){
         Session session = sessionFactory.openSession();
         List<Action> actions = session.createQuery("FROM Action WHERE product.id = :id " +
@@ -188,15 +198,19 @@ public class Persist {
         session.close();
     }
 
-
-
-    public void updateAmount (CreditManagement creditManagement) {
+    public List<Action> getProductActionsByMaxAmount(int publisherId) {
         Session session = sessionFactory.openSession();
-        session.update(creditManagement);
-
+        List<Action> actions = session.createQuery("FROM Action WHERE userSuggest.id = :publisherId " +
+                "AND userSuggestAmount = (SELECT MAX(userSuggestAmount) FROM Action WHERE userSuggest.id = :publisherId)")
+                .setParameter("publisherId", publisherId)
+                .list();
         session.close();
+        return actions;
 
     }
+
+
+
 
 
     public User getUserByToken (String token) {
