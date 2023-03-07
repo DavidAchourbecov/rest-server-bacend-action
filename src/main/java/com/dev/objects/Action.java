@@ -10,7 +10,7 @@ public class Action {
     public Action() {
     }
 
-    public Action( User userSuggest,double userSuggestAmount, Product product, User publisher,boolean lastOffer ,Date biddingDate, boolean isWinner) {
+    public Action( User userSuggest,double userSuggestAmount, Product product, User publisher,boolean lastOffer ,Date biddingDate, int isWinner) {
         this.userSuggest = userSuggest;
         this.product = product;
         this.publisher = publisher;
@@ -60,11 +60,11 @@ public class Action {
         this.biddingDate = biddingDate;
     }
 
-    public boolean isWinner() {
+    public int isWinner() {
         return isWinner;
     }
 
-    public void setWinner(boolean winner) {
+    public void setWinner(int winner) {
         isWinner = winner;
     }
 
@@ -117,6 +117,6 @@ public class Action {
     private Date biddingDate;
 
     @Column(name = "winner")
-    private boolean isWinner;
+    private int isWinner;
 
 }

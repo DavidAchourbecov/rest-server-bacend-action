@@ -120,21 +120,20 @@ public class Persist {
         return actions;
     }
 
-    public Action updateWinnerActionsByProductIdMaxAmountLastDate (int id){
+    public List<Action>  updateWinnerActionsByProductIdMaxAmountLastOffer (int id){
         Session session = sessionFactory.openSession();
-        Action action =(Action) session.createQuery("FROM Action WHERE product.id = :id " +
-                "AND userSuggestAmount = (SELECT MAX(userSuggestAmount) FROM Action WHERE product.id = :id2) " +
-                "AND biddingDate = (SELECT MAX(biddingDate) FROM Action WHERE product.id = :id3)")
+        List<Action> actions = session.createQuery("FROM Action WHERE product.id = :id " +
+                "AND userSuggestAmount = (SELECT MAX(userSuggestAmount) FROM Action WHERE product.id = :id " +
+                "AND lastOffer = :lastOffer) AND lastOffer = :lastOffer")
                 .setParameter("id", id)
-                .setParameter("id2", id)
-                .setParameter("id3", id)
-                .uniqueResult();
+                .setParameter("lastOffer", true)
+                .list();
         session.close();
-        action.setWinner(true);
-        updateAction(action);
-        return action;
+        return actions;
 
     }
+
+
 
 
     public void updateCreditManagementToLoserActionByProductId(int id,boolean lastOffer,User userSuggest){
@@ -149,7 +148,7 @@ public class Persist {
         session.close();
 
         for (Action action1 : action) {
-            action1.setWinner(false);
+            action1.setWinner(Constants.LOSS);
             updateAction(action1);
             CreditManagement creditManagement = getCreditManagement(action1.getUserSuggest().getId());
             creditManagement.setCreditAmount(creditManagement.getCreditAmount()+action1.getUserSuggestAmount());
@@ -160,8 +159,10 @@ public class Persist {
 
     public void updateCreditManagement(CreditManagement creditManagement){
         Session session = sessionFactory.openSession();
+        session.beginTransaction();
         session.update(creditManagement);
-        session.close();
+        session.getTransaction().commit();
+        session.close();;
     }
 
 
@@ -169,7 +170,9 @@ public class Persist {
 
     public void updateProduct (Product product) {
         Session session = sessionFactory.openSession();
+        session.beginTransaction();
         session.update(product);
+        session.getTransaction().commit();
         session.close();
     }
 
@@ -190,6 +193,7 @@ public class Persist {
     public void updateAmount (CreditManagement creditManagement) {
         Session session = sessionFactory.openSession();
         session.update(creditManagement);
+
         session.close();
 
     }

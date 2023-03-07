@@ -12,5 +12,6 @@ public class Errors {
     public static final int ERROR_NO_SUCH_PRODUCT = 1008;
     public static final int ERROR_NOT_ENOUGH_CREDIT = 1009;
     public static final int ERROR_NOT_ENOUGH_ACTION = 1010;
+    public static final int ERROR_NO_CREDIT = 1011;
 
 }

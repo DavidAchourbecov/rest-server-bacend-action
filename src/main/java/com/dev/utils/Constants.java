@@ -5,9 +5,12 @@ public class Constants {
     public static final int SECOND = 1000;
     public static final int MINUTE = 60 * SECOND;
     public static final int HOUR = 60 * MINUTE;
-    public static final int PRESENT_OF_FEE = 5;
-    public static final int PRESENT= 100;
-    public static final int ZERO_PROFIT= 0;
+    public static final double PRESENT_OF_FEE = 5;
+    public static final double PRESENT= 100;
+    public static final double ZERO_PROFIT= 0;
+    public static final int WINNER = 1;
+    public static final int LOSS = 2;
+    public static final int NO_RESULT = 3;
 
 
 

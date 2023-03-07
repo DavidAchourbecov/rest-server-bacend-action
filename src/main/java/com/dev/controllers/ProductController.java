@@ -2,7 +2,6 @@ package com.dev.controllers;
 
 import com.dev.objects.Action;
 import com.dev.objects.CreditManagement;
-import com.dev.objects.Message;
 import com.dev.objects.Product;
 import com.dev.objects.User;
 import com.dev.responses.BasicResponse;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.swing.*;
 
 import java.util.List;
 
@@ -24,6 +22,8 @@ import static com.dev.utils.Errors.*;
 public class ProductController {
     @Autowired
     private Persist persist;
+    @Autowired
+    private LifeStatisticsController lifeStatisticsController;
 
     @RequestMapping(value = "add-product", method = {RequestMethod.POST, RequestMethod.GET})
     public BasicResponse addProduct(String token, String productName, String content, String imageLink, double minimumPrice,  Boolean openToAction) {
@@ -31,18 +31,27 @@ public class ProductController {
         User user = persist.getUserByToken(token);
         if (user != null) {
             CreditManagement creditManagement = persist.getCreditManagement(user.getId());
+            if (creditManagement == null) {
+                basicResponse = new BasicResponse(false, ERROR_NO_CREDIT);
+                return basicResponse;
+            }
+
+
             if (creditManagement.getCreditAmount() < minimumPrice) {
                 basicResponse = new BasicResponse(false, ERROR_NOT_ENOUGH_CREDIT);
                 return basicResponse;
             } else {
                 Product product = new Product(productName, content, imageLink, minimumPrice, openToAction, user);
                 persist.saveProduct(product);
+                BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
+                this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
                 creditManagement.setCreditAmount(creditManagement.getCreditAmount() - 2);
-                persist.updateAmount(creditManagement);
+                System.out.println(creditManagement.getCreditAmount());
+                persist.updateCreditManagement(creditManagement);
                 User admin = persist.getUserByUsername("admin");
                 CreditManagement creditManagementAdmin = persist.getCreditManagement(admin.getId());
                 creditManagementAdmin.setCreditAmount(creditManagementAdmin.getCreditAmount() + 2);
-                persist.updateAmount(creditManagementAdmin);
+                persist.updateCreditManagement(creditManagementAdmin);
                 basicResponse = new BasicResponse(true, null);
 
             }
@@ -86,9 +95,12 @@ public class ProductController {
                     basicResponse = new BasicResponse(false, ERROR_NOT_ENOUGH_ACTION);
                     return basicResponse;
                 } else {
-                  Action action=   persist.updateWinnerActionsByProductIdMaxAmountLastDate(productId);
-
-
+                    product.setOpenToAction(false);
+                    persist.updateProduct(product);
+                    BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
+                    this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
+                 List<Action>  actionsWinner=   persist.updateWinnerActionsByProductIdMaxAmountLastOffer(productId);
+                   Action action=this.getWinnerAction(actionsWinner);
                   persist.updateCreditManagementToLoserActionByProductId(productId,true,action.getUserSuggest());
                   CreditManagement creditManagement=persist.getCreditManagement(user.getId());
                   double amount=this.calculateFeeAmount(action.getUserSuggestAmount());
@@ -99,8 +111,7 @@ public class ProductController {
                     creditManagementAdmin.setCreditAmount(action.getUserSuggestAmount() - amount);
                     persist.updateAmount(creditManagementAdmin);
 
-                    product.setOpenToAction(false);
-                    persist.updateProduct(product);
+
                     basicResponse = new BasicResponse(true, null);
                 }
 
@@ -117,6 +128,39 @@ public class ProductController {
             return profit;
 
         }
+
+        public Action getWinnerAction ( List<Action> actions){
+            Action action=null;
+
+            if (actions.size() == Constants.WINNER) {
+                action = actions.get(0);
+            } else {
+                action =this.checkBiddingDate(actions);
+            }
+
+
+            return action;
+
+        }
+
+
+        public  Action checkBiddingDate (List<Action> actions){
+            Action action=null;
+            for (int i = 0; i < actions.size(); i++) {
+                if (actions.get(i).getBiddingDate().after(actions.get(i + 1).getBiddingDate())) {
+                    action = actions.get(i);
+                } else {
+                    action = actions.get(i + 1);
+                }
+            }
+            return action;
+
+
+        }
+
+
+
+
 
 
 }
