@@ -18,11 +18,11 @@ public class Persist {
     private final SessionFactory sessionFactory;
 
     @Autowired
-    public Persist (SessionFactory sf) {
+    public Persist(SessionFactory sf) {
         this.sessionFactory = sf;
     }
 
-    public User getUserByUsername (String username) {
+    public User getUserByUsername(String username) {
         User found = null;
         Session session = sessionFactory.openSession();
         found = (User) session.createQuery("FROM User WHERE username = :username")
@@ -32,15 +32,14 @@ public class Persist {
         return found;
     }
 
-    public int saveUser (User user) {
+    public int saveUser(User user) {
         Session session = sessionFactory.openSession();
-       int userId = (int)  session.save(user);
+        int userId = (int) session.save(user);
         session.close();
-
         return userId;
     }
 
-    public void createAmountUser (CreditManagement creditManagement){
+    public void createAmountUser(CreditManagement creditManagement) {
         Session session = sessionFactory.openSession();
         session.save(creditManagement);
         session.close();
@@ -48,13 +47,11 @@ public class Persist {
     }
 
 
-
-
-    public User getUserByUsernameAndToken (String username, String token) {
+    public User getUserByUsernameAndToken(String username, String token) {
         User found = null;
         Session session = sessionFactory.openSession();
         found = (User) session.createQuery("FROM User WHERE username = :username " +
-                        "AND token = :token")
+                "AND token = :token")
                 .setParameter("username", username)
                 .setParameter("token", token)
                 .uniqueResult();
@@ -62,14 +59,14 @@ public class Persist {
         return found;
     }
 
-    public List<User> getAllUsers () {
+    public List<User> getAllUsers() {
         Session session = sessionFactory.openSession();
         List<User> allUsers = session.createQuery("FROM User ").list();
         session.close();
         return allUsers;
     }
 
-    public List<Product> getAllOpenOrCloseTrades (boolean openToAction) {
+    public List<Product> getAllOpenOrCloseTrades(boolean openToAction) {
         Session session = sessionFactory.openSession();
         List<Product> products = session.createQuery("FROM Product WHERE openToAction = :openToAction")
                 .setParameter("openToAction", openToAction)
@@ -78,7 +75,7 @@ public class Persist {
         return products;
     }
 
-    public  List<Action> getAllOpenOrCloseActions (Boolean openToAction){
+    public List<Action> getAllOpenOrCloseActions(Boolean openToAction) {
         Session session = sessionFactory.openSession();
         List<Action> actions = session.createQuery("FROM Action WHERE product.openToAction   = :openToAction")
                 .setParameter("openToAction", openToAction)
@@ -87,7 +84,7 @@ public class Persist {
         return actions;
     }
 
-    public  CreditManagement  getCreditManagement (int userId){
+    public CreditManagement getCreditManagement(int userId) {
         Session session = sessionFactory.openSession();
         CreditManagement creditManagement = (CreditManagement) session.createQuery("FROM CreditManagement WHERE user.id = :userId")
                 .setParameter("userId", userId)
@@ -96,13 +93,13 @@ public class Persist {
         return creditManagement;
     }
 
-    public void saveProduct (Product product) {
+    public void saveProduct(Product product) {
         Session session = sessionFactory.openSession();
         session.save(product);
         session.close();
     }
 
-    public Product getProductById (int id) {
+    public Product getProductById(int id) {
         Session session = sessionFactory.openSession();
         Product product = (Product) session.createQuery("FROM Product WHERE id = :id")
                 .setParameter("id", id)
@@ -111,7 +108,7 @@ public class Persist {
         return product;
     }
 
-    public List<Action>  getActionsByProductId (int id){
+    public List<Action> getActionsByProductId(int id) {
         Session session = sessionFactory.openSession();
         List<Action> actions = session.createQuery("FROM Action WHERE product.id = :id")
                 .setParameter("id", id)
@@ -120,7 +117,7 @@ public class Persist {
         return actions;
     }
 
-    public List<Action>  getActionsByProductIdAndUserId (int id,int userId){
+    public List<Action> getActionsByProductIdAndUserId(int id, int userId) {
         Session session = sessionFactory.openSession();
         List<Action> actions = session.createQuery("FROM Action WHERE product.id = :id AND userSuggest.id = :userId")
                 .setParameter("id", id)
@@ -130,7 +127,7 @@ public class Persist {
         return actions;
     }
 
-    public List<Action>  updateWinnerActionsByProductIdMaxAmountLastOffer (int id){
+    public List<Action> updateWinnerActionsByProductIdMaxAmountLastOffer(int id) {
         Session session = sessionFactory.openSession();
         List<Action> actions = session.createQuery("FROM Action WHERE product.id = :id " +
                 "AND userSuggestAmount = (SELECT MAX(userSuggestAmount) FROM Action WHERE product.id = :id " +
@@ -144,11 +141,9 @@ public class Persist {
     }
 
 
-
-
-    public void updateCreditManagementToLoserActionByProductId(int id,boolean lastOffer,User userSuggest){
+    public void updateCreditManagementToLoserActionByProductId(int id, boolean lastOffer, User userSuggest) {
         Session session = sessionFactory.openSession();
-        List<Action>  action = (List<Action>) session.createQuery("FROM Action WHERE product.id = :id " +
+        List<Action> action = (List<Action>) session.createQuery("FROM Action WHERE product.id = :id " +
                 "AND userSuggest.id != :userId"
                 + " AND lastOffer = :lastOffer")
                 .setParameter("id", id)
@@ -161,24 +156,25 @@ public class Persist {
             action1.setWinner(Constants.LOSS);
             updateAction(action1);
             CreditManagement creditManagement = getCreditManagement(action1.getUserSuggest().getId());
-            creditManagement.setCreditAmount(creditManagement.getCreditAmount()+action1.getUserSuggestAmount());
+            creditManagement.setCreditAmount(creditManagement.getCreditAmount() + action1.getUserSuggestAmount());
             updateCreditManagement(creditManagement);
+
         }
 
     }
 
-    public void updateCreditManagement(CreditManagement creditManagement){
+
+    public void updateCreditManagement(CreditManagement creditManagement) {
         Session session = sessionFactory.openSession();
         session.beginTransaction();
         session.update(creditManagement);
         session.getTransaction().commit();
-        session.close();;
+        session.close();
+        ;
     }
 
 
-
-
-    public void updateProduct (Product product) {
+    public void updateProduct(Product product) {
         Session session = sessionFactory.openSession();
         session.beginTransaction();
         session.update(product);
@@ -186,15 +182,56 @@ public class Persist {
         session.close();
     }
 
-    public void saveAction (Action action) {
+    public void saveAction(Action action) {
         Session session = sessionFactory.openSession();
-        session.save(action);
+         session.save(action);
         session.close();
     }
 
-    public void updateAction (Action action) {
+    public List<Action> getActionsByUserId(int userId) {
         Session session = sessionFactory.openSession();
+        List<Action> actions = session.createQuery("FROM Action WHERE userSuggest.id = :userId")
+                .setParameter("userId", userId)
+                .list();
+        session.close();
+        return actions;
+    }
+
+
+    public Action getActionByProductIdAndUserIdAndLastOffer(int id, int userId, boolean lastOffer) {
+        Session session = sessionFactory.openSession();
+        Action action = (Action) session.createQuery("FROM Action WHERE product.id = :id AND userSuggest.id = :userId AND lastOffer = :lastOffer")
+                .setParameter("id", id)
+                .setParameter("userId", userId)
+                .setParameter("lastOffer", lastOffer)
+                .uniqueResult();
+        session.close();
+        return action;
+    }
+
+    public Action getWinnerActionsByProductIdMaxAmountAndMinDate(int id) {
+        Session session = sessionFactory.openSession();
+        Action action = (Action) session.createQuery("FROM Action WHERE product.id = :id " +
+                "AND userSuggestAmount = (SELECT MAX(userSuggestAmount) FROM Action WHERE product.id = :id " +
+                "AND lastOffer = :lastOffer) AND lastOffer = :lastOffer " +
+                "AND biddingDate = (SELECT MIN(biddingDate) FROM Action WHERE product.id = :id " +
+                "AND lastOffer = :lastOffer AND userSuggestAmount = (SELECT MAX(userSuggestAmount) FROM Action WHERE product.id = :id " +
+                "AND lastOffer = :lastOffer))")
+                .setParameter("id", id)
+                .setParameter("lastOffer", true)
+                .uniqueResult();
+        session.close();
+        return action;
+
+    }
+
+
+
+    public void updateAction(Action action) {
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
         session.update(action);
+        session.getTransaction().commit();
         session.close();
     }
 
@@ -210,19 +247,16 @@ public class Persist {
     }
 
 
-
-
-
-    public User getUserByToken (String token) {
+    public User getUserByToken(String token) {
         Session session = sessionFactory.openSession();
         User user = (User) session.createQuery("From User WHERE token = :token")
-                        .setParameter("token", token)
-                                .uniqueResult();
+                .setParameter("token", token)
+                .uniqueResult();
         session.close();
         return user;
     }
 
-    public List<Message> getMessagesByToken (String token) {
+    public List<Message> getMessagesByToken(String token) {
         Session session = sessionFactory.openSession();
         List<Message> messages = session.createQuery("FROM Message WHERE recipient.token = :token ")
                 .setParameter("token", token)
@@ -231,7 +265,7 @@ public class Persist {
         return messages;
     }
 
-    public List<Message> getConversation (String token, int recipientId) {
+    public List<Message> getConversation(String token, int recipientId) {
         Session session = sessionFactory.openSession();
         List<Message> messages = session.createQuery(
                 "FROM Message WHERE " +
@@ -247,7 +281,7 @@ public class Persist {
         return messages;
     }
 
-    public User getUserById (int id) {
+    public User getUserById(int id) {
         Session session = sessionFactory.openSession();
         User user = (User) session.createQuery("FROM User WHERE id = :id")
                 .setParameter("id", id)
@@ -256,7 +290,7 @@ public class Persist {
         return user;
     }
 
-    public void saveMessage (Message message) {
+    public void saveMessage(Message message) {
         Session session = sessionFactory.openSession();
         session.save(message);
         session.close();

@@ -4,7 +4,9 @@ import com.dev.objects.Action;
 import com.dev.objects.Product;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ProductModel {
@@ -31,15 +33,14 @@ public class ProductModel {
         this.publishDate = simpleDateFormat.format(product.getPublishDate());
         this.username = product.getUser().getUsername();
         this.numOpenBids = numOpenBids;
+        this.myBids =new ArrayList<>();
         for (Action a : action){
             this.myBids.add(new ActionModel(a));
         }
 
-        Collections.sort(this.myBids, Collections.reverseOrder());
+
 
     }
-
-
 
 
 

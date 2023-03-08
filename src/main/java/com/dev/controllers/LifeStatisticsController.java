@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
+import static com.dev.utils.Constants.MINUTE;
+
 @Controller
 public class LifeStatisticsController {
     @Autowired
@@ -34,7 +36,7 @@ public class LifeStatisticsController {
 
     @RequestMapping(value = "/sse-statist", method = RequestMethod.GET)
     public SseEmitter handle() {
-        SseEmitter sseEmitter = new SseEmitter(10L * 60 * 1000);
+        SseEmitter sseEmitter = new SseEmitter(10L * MINUTE);
         emitterList.add(sseEmitter);
         sseEmitter.onCompletion(() -> emitterList.remove(sseEmitter));
         sseEmitter.onTimeout(() -> emitterList.remove(sseEmitter));

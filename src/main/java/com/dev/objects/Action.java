@@ -6,15 +6,16 @@ import java.util.Date;
 @Entity
 @Table(name = "Action")
 public class Action {
-
     public Action() {
     }
 
-    public Action( User userSuggest,double userSuggestAmount, Product product, User publisher,boolean lastOffer ,Date biddingDate, int isWinner) {
+
+
+    public Action(User userSuggest, double userSuggestAmount, Product product, boolean lastOffer, int isWinner) {
         this.userSuggest = userSuggest;
         this.product = product;
-        this.publisher = publisher;
-        this.biddingDate = biddingDate;
+        this.publisher = product.getUser();
+        this.biddingDate = new Date();
         this.isWinner = isWinner;
         this.userSuggestAmount = userSuggestAmount;
         this.lastOffer = lastOffer;
@@ -103,14 +104,12 @@ public class Action {
     private Product product;
 
 
-
     @ManyToOne
     @JoinColumn(name = "publisher_id")
     private User publisher;
 
     @Column(name = "last_offer")
     private boolean lastOffer;
-
 
 
     @Column(name = "bidding_date")

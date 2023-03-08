@@ -2,18 +2,22 @@ package com.dev.models;
 
 import com.dev.objects.Action;
 
-public class MyProducts {
+public class MyBidsModel {
     private int id;
     private String name;
-    private double bidMax;
+    private double bid;
     private boolean openToAction;
+    private int isWinner;
 
-    public MyProducts(Action action) {
+    public MyBidsModel(Action action) {
         this.id = action.getProduct().getId();
         this.name = action.getProduct().getProductName();
-        this.bidMax = action.getUserSuggestAmount();
+        this.bid = action.getUserSuggestAmount();
         this.openToAction = action.getProduct().getOpenToAction();
+        this.isWinner = action.isWinner();
     }
+
+
 
     public int getId() {
         return id;
@@ -31,12 +35,12 @@ public class MyProducts {
         this.name = name;
     }
 
-    public double getBidMax() {
-        return bidMax;
+    public double getBid() {
+        return bid;
     }
 
-    public void setBidMax(double bidMax) {
-        this.bidMax = bidMax;
+    public void setBid(double bid) {
+        this.bid = bid;
     }
 
     public boolean isOpenToAction() {
@@ -46,5 +50,12 @@ public class MyProducts {
     public void setOpenToAction(boolean openToAction) {
         this.openToAction = openToAction;
     }
-}
 
+    public int getIsWinner() {
+        return isWinner;
+    }
+
+    public void setIsWinner(int isWinner) {
+        this.isWinner = isWinner;
+    }
+}

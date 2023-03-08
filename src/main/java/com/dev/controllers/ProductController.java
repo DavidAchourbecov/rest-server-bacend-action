@@ -31,7 +31,7 @@ public class ProductController {
     private LifeStatisticsController lifeStatisticsController;
 
     @RequestMapping(value = "add-product", method = {RequestMethod.POST, RequestMethod.GET})
-    public BasicResponse addProduct(String token, String productName, String content, String imageLink, double minimumPrice,  Boolean openToAction) {
+    public BasicResponse addProduct(String token, String productName, String content, String imageLink, double minimumPrice, Boolean openToAction) {
         BasicResponse basicResponse = null;
         User user = persist.getUserByToken(token);
         if (user != null) {
@@ -72,9 +72,9 @@ public class ProductController {
             product = persist.getProductById(productId);
             if (product != null) {
                 List<Action> actions = persist.getActionsByProductId(productId);
-                List<Action> myBids =persist.getActionsByProductIdAndUserId(productId,user.getId());
-                ProductModel productModel = new ProductModel(product,actions.size(),myBids);
-                basicResponse = new ProductResponse(true, null,productModel );
+                List<Action> myBids = persist.getActionsByProductIdAndUserId(productId, user.getId());
+                ProductModel productModel = new ProductModel(product, actions.size(), myBids);
+                basicResponse = new ProductResponse(true, null, productModel);
             } else {
                 basicResponse = new BasicResponse(false, ERROR_NO_SUCH_PRODUCT);
             }
@@ -102,16 +102,20 @@ public class ProductController {
                     persist.updateProduct(product);
                     BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
                     this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
-                 List<Action>  actionsWinner=   persist.updateWinnerActionsByProductIdMaxAmountLastOffer(productId);
-                   Action action=this.getWinnerAction(actionsWinner);
-                  persist.updateCreditManagementToLoserActionByProductId(productId,true,action.getUserSuggest());
-                  CreditManagement creditManagement=persist.getCreditManagement(user.getId());
-                  double amount=this.calculateFeeAmount(action.getUserSuggestAmount());
-                  creditManagement.setCreditAmount(amount);
-                  persist.updateCreditManagement(creditManagement);
+                    List<Action> actionsWinner = persist.updateWinnerActionsByProductIdMaxAmountLastOffer(productId);
+                    Action action = this.getWinnerAction(actionsWinner, productId);
+                    action.setWinner(Constants.WINNER);
+                    persist.updateAction(action);
                     User admin = persist.getUserByUsername("admin");
+                    persist.updateCreditManagementToLoserActionByProductId(productId, true, action.getUserSuggest());
+                    CreditManagement creditManagement = persist.getCreditManagement(user.getId());
+                    double amount = this.calculateFeeAmount(action.getUserSuggestAmount());
+                    creditManagement.setCreditAmount(amount + creditManagement.getCreditAmount());
+                    persist.updateCreditManagement(creditManagement);
+
                     CreditManagement creditManagementAdmin = persist.getCreditManagement(admin.getId());
-                    creditManagementAdmin.setCreditAmount(action.getUserSuggestAmount() - amount);
+                    creditManagementAdmin.setCreditAmount(creditManagementAdmin.getCreditAmount() +
+                            action.getUserSuggestAmount() * (Constants.PRESENT_OF_FEE / Constants.PRESENT));
                     persist.updateCreditManagement(creditManagementAdmin);
 
 
@@ -121,66 +125,50 @@ public class ProductController {
             } else {
                 basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
             }
-          }
-            return basicResponse;
+        }
+        return basicResponse;
+    }
+
+    public double calculateFeeAmount(double amount) {
+        double profit = Constants.ZERO_PROFIT;
+        profit = amount - amount * (Constants.PRESENT_OF_FEE / Constants.PRESENT);
+        return profit;
+
+    }
+
+    public Action getWinnerAction(List<Action> actions, int productId) {
+        Action action = null;
+
+        if (actions.size() > 1) {
+            action = persist.getWinnerActionsByProductIdMaxAmountAndMinDate(productId);
+
+        } else {
+            action = actions.get(0);
         }
 
-        public double calculateFeeAmount (double amount) {
-           double profit=Constants.ZERO_PROFIT;
-           profit =amount- amount*(Constants.PRESENT_OF_FEE/Constants.PRESENT);
-            return profit;
 
-        }
+        return action;
 
-        public Action getWinnerAction ( List<Action> actions){
-            Action action=null;
+    }
 
-            if (actions.size() == Constants.WINNER) {
-                action = actions.get(0);
-            } else {
-                action =this.checkBiddingDate(actions);
+
+    @RequestMapping(value = "get-my-products", method = {RequestMethod.POST, RequestMethod.GET})
+    public BasicResponse getMyProducts(String token) {
+        BasicResponse basicResponse = null;
+        User user = persist.getUserByToken(token);
+        if (user != null) {
+            List<Action> actions = persist.getProductActionsByMaxAmount(user.getId());
+            List<MyProducts> myProducts = new ArrayList<>();
+            for (Action action : actions) {
+                MyProducts myProduct = new MyProducts(action);
+                myProducts.add(myProduct);
             }
-
-
-            return action;
-
+            basicResponse = new MyProductsResponse(true, null, myProducts);
+        } else {
+            basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
         }
-
-
-        public  Action checkBiddingDate (List<Action> actions){
-            Action action=null;
-            for (int i = 0; i < actions.size(); i++) {
-                if (actions.get(i).getBiddingDate().after(actions.get(i + 1).getBiddingDate())) {
-                    action = actions.get(i);
-                } else {
-                    action = actions.get(i + 1);
-                }
-            }
-            return action;
-
-
-        }
-        @RequestMapping(value = "get-my-products", method = {RequestMethod.POST, RequestMethod.GET})
-        public BasicResponse getMyProducts(String token) {
-            BasicResponse basicResponse = null;
-            User user = persist.getUserByToken(token);
-            if (user != null) {
-                List<Action> actions = persist.getProductActionsByMaxAmount(user.getId());
-                List <MyProducts> myProducts=new ArrayList<>();
-                for (Action action : actions) {
-                    MyProducts myProduct = new MyProducts(action);
-                    myProducts.add(myProduct);
-                }
-                basicResponse = new MyProductsResponse(true, null, myProducts);
-            } else {
-                basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
-            }
-            return basicResponse;
-        }
-
-
-
-
+        return basicResponse;
+    }
 
 
 }
