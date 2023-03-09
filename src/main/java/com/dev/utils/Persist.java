@@ -104,10 +104,11 @@ public class Persist {
 
 
 
-    public void saveProduct(Product product) {
+    public int saveProduct(Product product) {
         Session session = sessionFactory.openSession();
-        session.save(product);
+        int productId = (int) session.save(product);
         session.close();
+        return productId;
     }
 
     public Product getProductById(int id) {

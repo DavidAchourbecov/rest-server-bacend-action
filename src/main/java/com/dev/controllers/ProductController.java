@@ -1,6 +1,7 @@
 package com.dev.controllers;
 
 import com.dev.models.ActionModel;
+import com.dev.models.MainTableModel;
 import com.dev.models.MyProducts;
 import com.dev.models.ProductModel;
 import com.dev.objects.Action;
@@ -30,6 +31,9 @@ public class ProductController {
     @Autowired
     private LifeStatisticsController lifeStatisticsController;
 
+    @Autowired
+    private LiveUpdatesMainTableController liveUpdatesMainTableController;
+
     @RequestMapping(value = "add-product", method = {RequestMethod.POST, RequestMethod.GET})
     public BasicResponse addProduct(String token, String productName, String content, String imageLink, double minimumPrice, Boolean openToAction) {
         BasicResponse basicResponse = null;
@@ -45,7 +49,10 @@ public class ProductController {
                 return basicResponse;
             } else {
                 Product product = new Product(productName, content, imageLink, minimumPrice, openToAction, user);
-                persist.saveProduct(product);
+                product.setId(persist.saveProduct(product));
+                MainTableModel mainTableModel = new MainTableModel(product, new ArrayList<Action>(), 0,Constants.STATUS_ADD_PRODUCT,0);
+                liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
+
                 BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
                 this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
                 creditManagement.setCreditAmount(creditManagement.getCreditAmount() - 2);
@@ -100,6 +107,8 @@ public class ProductController {
                 } else {
                     product.setOpenToAction(false);
                     persist.updateProduct(product);
+                    MainTableModel mainTableModel = new MainTableModel(product, actions, 0,Constants.STATUS_CLOSE_PRODUCT,0);
+                    liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
                     BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
                     this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
                     List<Action> actionsWinner = persist.updateWinnerActionsByProductIdMaxAmountLastOffer(productId);

@@ -1,5 +1,6 @@
 package com.dev.controllers;
 
+import com.dev.models.MainTableModel;
 import com.dev.models.MyBidsModel;
 import com.dev.objects.Action;
 import com.dev.objects.CreditManagement;
@@ -24,6 +25,9 @@ public class BidController {
     private Persist persist;
     @Autowired
     private LifeStatisticsController lifeStatisticsController;
+
+    @Autowired
+    private LiveUpdatesMainTableController liveUpdatesMainTableController;
 
     @RequestMapping(value = "add-bid", method = {RequestMethod.POST, RequestMethod.GET})
 
@@ -84,6 +88,10 @@ public class BidController {
                     } else {
                         basicResponse = new BasicResponse(false, Errors.ERROR_BID_AMOUNT);
                     }
+
+                    List<Action> actionList = persist.getActionsByProductId(productId);
+                    MainTableModel mainTableModel = new MainTableModel(product, actionList,user.getId(),Constants.STATUS_ADD_BID,user.getId());
+                    this.liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
 
                 }
 

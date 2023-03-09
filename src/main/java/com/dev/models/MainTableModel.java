@@ -13,14 +13,20 @@ public class MainTableModel {
     private String date;
     private  int generalBids;
     private  int myBids;
+    private int publishUserId;
+    private int statement;
+    private int bidUserId;
 
-     public MainTableModel(Product product, List<Action> actions,int userId) {
+     public MainTableModel(Product product, List<Action> actions,int userId, int statement, int bidUserId) {
         this.id = product.getId();
         this.name = product.getProductName();
         this.linkImage = product.getImageLink();
          SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         this.date = simpleDateFormat.format(product.getPublishDate());
         this.generalBids = actions.size();
+        this.statement = statement;
+        this.publishUserId = product.getUser().getId();
+        this.bidUserId = bidUserId;
         this.myBids = 0;
         if (userId == 0){
             return;
@@ -82,5 +88,29 @@ public class MainTableModel {
 
     public void setMyBids(int myBids) {
         this.myBids = myBids;
+    }
+
+    public int getPublishUserId() {
+        return publishUserId;
+    }
+
+    public void setPublishUserId(int publishUserId) {
+        this.publishUserId = publishUserId;
+    }
+
+    public int getStatement() {
+        return statement;
+    }
+
+    public void setStatement(int statement) {
+        this.statement = statement;
+    }
+
+    public int getBidUserId() {
+        return bidUserId;
+    }
+
+    public void setBidUserId(int bidUserId) {
+        this.bidUserId = bidUserId;
     }
 }

@@ -1,5 +1,6 @@
 package com.dev.controllers;
 
+import com.dev.models.MainTableModel;
 import com.dev.utils.Persist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.dev.utils.Constants.MINUTE;
+
 @Controller
 public class LiveUpdatesMainTableController {
     @Autowired
@@ -21,28 +24,32 @@ public class LiveUpdatesMainTableController {
     private List<SseEmitter> emitterList = new ArrayList<>();
     private Map<String, SseEmitter> emitterMap = new HashMap<>();
 
-
-    @RequestMapping(value = "/sse-main-table", method = RequestMethod.GET)
-    public SseEmitter handleGetMainTableByUserId(String token) {
-        SseEmitter sseEmitter = new SseEmitter(10L * 60 * 1000);
-
+    @RequestMapping (value = "/sse-handler-main-table", method = RequestMethod.GET)
+    public SseEmitter handle () {
+        SseEmitter sseEmitter = new SseEmitter(10L * MINUTE);
         emitterList.add(sseEmitter);
         sseEmitter.onCompletion(() -> emitterList.remove(sseEmitter));
         sseEmitter.onTimeout(() -> emitterList.remove(sseEmitter));
         return sseEmitter;
     }
 
-    @Scheduled(fixedRate = 1000)
-    public void sendUpdatesMainTable() {
+
+    public void sendUpdatesMainTable(MainTableModel mainTableModel) {
+        if (emitterList.size() == 0) {
+            return;
+        }
+
         for (SseEmitter emitter : emitterList) {
             try {
-                emitter.send("update");
+                emitter.send(mainTableModel);
             } catch (Exception e) {
                 emitter.completeWithError(e);
                 emitterList.remove(emitter);
             }
         }
     }
+
+
 
 
 

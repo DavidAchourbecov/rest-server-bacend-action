@@ -30,7 +30,7 @@ public class MainTableController {
             List<MainTableModel> mainTableModels = new ArrayList<>();
             for (Product product : products) {
                 List<Action> actions = persist.getGeneralBidsByProductId(product.getId());
-                MainTableModel mainTableModel = new MainTableModel(product, actions, user.getId());
+                MainTableModel mainTableModel = new MainTableModel(product, actions, user.getId(), Constants.FIRST_DATA,0);
                 mainTableModels.add(mainTableModel);
             }
             basicResponse = new MainTableModelResponse(true, null, mainTableModels);

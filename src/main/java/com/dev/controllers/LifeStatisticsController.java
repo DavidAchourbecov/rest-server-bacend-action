@@ -46,6 +46,9 @@ public class LifeStatisticsController {
 
 
     public void sendUpdatesStatistics(BasicResponse response) {
+        if (emitterList.size() == 0) {
+            return;
+        }
         for (SseEmitter emitter : emitterList) {
             try {
                 emitter.send(response);

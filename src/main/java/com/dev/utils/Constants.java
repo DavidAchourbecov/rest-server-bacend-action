@@ -11,6 +11,10 @@ public class Constants {
     public static final int WINNER = 1;
     public static final int LOSS = 2;
     public static final int NO_RESULT = 3;
+    public static final int STATUS_ADD_PRODUCT = 1;
+    public static final int STATUS_CLOSE_PRODUCT = 2;
+    public static final int STATUS_ADD_BID = 3;
+    public static final int FIRST_DATA = 0;
 
 
 
