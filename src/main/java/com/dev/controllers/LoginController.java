@@ -3,11 +3,13 @@ package com.dev.controllers;
 import com.dev.objects.CreditManagement;
 import com.dev.objects.User;
 import com.dev.responses.BasicResponse;
+import com.dev.responses.CreditManagementResponse;
 import com.dev.responses.LoginResponse;
 import com.dev.utils.Persist;
 import com.dev.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.dev.utils.Errors.*;
@@ -96,5 +98,19 @@ public class LoginController {
             basicResponse = new BasicResponse(false, ERROR_STATISTICS);
         }
         return basicResponse;
+    }
+
+    @RequestMapping(value = "get-credit" , method = RequestMethod.GET)
+    public  BasicResponse getCredit (String token){
+        BasicResponse basicResponse = null;
+        User user = persist.getUserByToken(token);
+        if (user != null) {
+            CreditManagement creditManagement = persist.getCreditManagement(user.getId());
+            basicResponse = new CreditManagementResponse(true, null, creditManagement);
+        } else {
+            basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
+        }
+        return basicResponse;
+
     }
 }

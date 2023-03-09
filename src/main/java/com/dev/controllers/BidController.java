@@ -45,6 +45,13 @@ public class BidController {
                     basicResponse = new BasicResponse(false, Errors.ERROR_NO_PRODUCT);
                     return basicResponse;
                 }
+
+                Product checkUserProduct = persist.getProductByProductIdAndUserId(productId,user.getId());
+                if(checkUserProduct != null){
+                    basicResponse = new BasicResponse(false, Errors.ERROR_USER_IS_OWNER);
+                    return basicResponse;
+                }
+
                 if (product.getMinimumPrice() > bidAmount) {
                     basicResponse = new BasicResponse(false, Errors.ERROR_BID_AMOUNT);
                     return basicResponse;

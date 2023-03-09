@@ -1,6 +1,7 @@
 package com.dev.models;
 
 import com.dev.objects.Action;
+import com.dev.objects.Product;
 
 public class MyProducts {
     private int id;
@@ -8,11 +9,11 @@ public class MyProducts {
     private double bidMax;
     private boolean openToAction;
 
-    public MyProducts(Action action) {
-        this.id = action.getProduct().getId();
-        this.name = action.getProduct().getProductName();
-        this.bidMax = action.getUserSuggestAmount();
-        this.openToAction = action.getProduct().getOpenToAction();
+    public MyProducts(Product product, double bidMax)  {
+        this.id = product.getId();
+        this.name = product.getProductName();
+        this.bidMax = bidMax;
+        this.openToAction = product.getOpenToAction();
     }
 
     public int getId() {

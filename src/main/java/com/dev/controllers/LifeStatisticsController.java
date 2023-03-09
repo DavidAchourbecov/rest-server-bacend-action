@@ -35,7 +35,7 @@ public class LifeStatisticsController {
 
 
     @RequestMapping(value = "/sse-statist", method = RequestMethod.GET)
-    public SseEmitter handle() {
+    public SseEmitter handle(int id) {
         SseEmitter sseEmitter = new SseEmitter(10L * MINUTE);
         emitterList.add(sseEmitter);
         sseEmitter.onCompletion(() -> emitterList.remove(sseEmitter));

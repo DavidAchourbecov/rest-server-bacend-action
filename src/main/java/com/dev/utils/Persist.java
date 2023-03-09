@@ -93,6 +93,17 @@ public class Persist {
         return creditManagement;
     }
 
+       public List<Product> getMyProductsOpenToActionByUserId(int userId) {
+        Session session = sessionFactory.openSession();
+        List<Product> products = session.createQuery("FROM Product WHERE user.id = :userId AND openToAction = true")
+                .setParameter("userId", userId)
+                .list();
+        session.close();
+        return products;
+    }
+
+
+
     public void saveProduct(Product product) {
         Session session = sessionFactory.openSession();
         session.save(product);
@@ -107,6 +118,17 @@ public class Persist {
         session.close();
         return product;
     }
+
+    public Product getProductByProductIdAndUserId(int id, int userId) {
+        Session session = sessionFactory.openSession();
+        Product product = (Product) session.createQuery("FROM Product WHERE id = :id AND user.id = :userId")
+                .setParameter("id", id)
+                .setParameter("userId", userId)
+                .uniqueResult();
+        session.close();
+        return product;
+    }
+
 
     public List<Action> getActionsByProductId(int id) {
         Session session = sessionFactory.openSession();
@@ -235,14 +257,13 @@ public class Persist {
         session.close();
     }
 
-    public List<Action> getProductActionsByMaxAmount(int publisherId) {
+    public List<Product> getProductsByUserId(int publisherId) {
         Session session = sessionFactory.openSession();
-        List<Action> actions = session.createQuery("FROM Action WHERE userSuggest.id = :publisherId " +
-                "AND userSuggestAmount = (SELECT MAX(userSuggestAmount) FROM Action WHERE userSuggest.id = :publisherId)")
+        List<Product> products = session.createQuery("FROM Product WHERE user.id = :publisherId")
                 .setParameter("publisherId", publisherId)
                 .list();
         session.close();
-        return actions;
+        return products;
 
     }
 
@@ -254,6 +275,54 @@ public class Persist {
                 .uniqueResult();
         session.close();
         return user;
+    }
+
+
+    public  List<Product> getProductsOpenToActionByUserId(int userId) {
+        Session session = sessionFactory.openSession();
+        List<Product> products = session.createQuery("FROM Product WHERE user.id != :userId AND openToAction = :openToAction")
+                .setParameter("userId", userId)
+                .setParameter("openToAction", true)
+                .list();
+        session.close();
+        return products;
+    }
+
+    public List<Product> getProductsOpenToAction() {
+        Session session = sessionFactory.openSession();
+        List<Product> products = session.createQuery("FROM Product WHERE openToAction = :openToAction")
+                .setParameter("openToAction", true)
+                .list();
+        session.close();
+        return products;
+    }
+
+
+
+    public List<Action> getGeneralBidsByProductId(int productId) {
+        Session session = sessionFactory.openSession();
+        List<Action> actions = session.createQuery("FROM Action WHERE isWinner = :isWinner AND product.id = :productId")
+                .setParameter("isWinner", Constants.NO_RESULT)
+                .setParameter("productId", productId)
+                .list();
+        session.close();
+        return actions;
+    }
+
+
+
+
+
+
+    public List<Action> getOpenActionsByUserId(int userId ) {
+        Session session = sessionFactory.openSession();
+        List<Action> actions = session.createQuery("FROM Action WHERE publisher.id != :userId AND isWinner = :isWinner")
+                .setParameter("userId", userId)
+                .setParameter("isWinner", Constants.NO_RESULT)
+                .list();
+        session.close();
+        return actions;
+
     }
 
     public List<Message> getMessagesByToken(String token) {

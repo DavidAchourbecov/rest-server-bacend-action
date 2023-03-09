@@ -95,7 +95,7 @@ public class ProductController {
             if (product != null) {
                 List<Action> actions = persist.getActionsByProductId(productId);
                 if (actions.size() < 3) {
-                    basicResponse = new BasicResponse(false, ERROR_NOT_ENOUGH_ACTION);
+                    basicResponse = new BasicResponse(false, ERROR_MIN_3_BIDS);
                     return basicResponse;
                 } else {
                     product.setOpenToAction(false);
@@ -106,8 +106,8 @@ public class ProductController {
                     Action action = this.getWinnerAction(actionsWinner, productId);
                     action.setWinner(Constants.WINNER);
                     persist.updateAction(action);
-                    User admin = persist.getUserByUsername("admin");
                     persist.updateCreditManagementToLoserActionByProductId(productId, true, action.getUserSuggest());
+                    User admin = persist.getUserByUsername("admin");
                     CreditManagement creditManagement = persist.getCreditManagement(user.getId());
                     double amount = this.calculateFeeAmount(action.getUserSuggestAmount());
                     creditManagement.setCreditAmount(amount + creditManagement.getCreditAmount());
@@ -115,7 +115,7 @@ public class ProductController {
 
                     CreditManagement creditManagementAdmin = persist.getCreditManagement(admin.getId());
                     creditManagementAdmin.setCreditAmount(creditManagementAdmin.getCreditAmount() +
-                            action.getUserSuggestAmount() * (Constants.PRESENT_OF_FEE / Constants.PRESENT));
+                            action.getUserSuggestAmount() - amount);
                     persist.updateCreditManagement(creditManagementAdmin);
 
 
@@ -142,7 +142,7 @@ public class ProductController {
         if (actions.size() > 1) {
             action = persist.getWinnerActionsByProductIdMaxAmountAndMinDate(productId);
 
-        } else {
+        } else if (actions.size() == 1) {
             action = actions.get(0);
         }
 
@@ -157,10 +157,16 @@ public class ProductController {
         BasicResponse basicResponse = null;
         User user = persist.getUserByToken(token);
         if (user != null) {
-            List<Action> actions = persist.getProductActionsByMaxAmount(user.getId());
+            List<Product> products = persist.getProductsByUserId(user.getId());
             List<MyProducts> myProducts = new ArrayList<>();
-            for (Action action : actions) {
-                MyProducts myProduct = new MyProducts(action);
+            for (Product product : products) {
+                double bidMax = 0;
+                List<Action> actionsWinner = persist.updateWinnerActionsByProductIdMaxAmountLastOffer(product.getId());
+                Action action = this.getWinnerAction(actionsWinner, product.getId());
+                if (action != null) {
+                    bidMax = action.getUserSuggestAmount();
+                }
+                MyProducts myProduct = new MyProducts(product, bidMax);
                 myProducts.add(myProduct);
             }
             basicResponse = new MyProductsResponse(true, null, myProducts);

@@ -16,5 +16,13 @@ public class Errors {
     public static final int ERROR_NO_PRODUCT = 1012;
     public static final int ERROR_BID_AMOUNT = 1013;
     public static final int ERROR_PRODUCT_NOT_OPEN_TO_ACTION = 1014;
+    public static final int ERROR_USER_IS_OWNER = 1015;
+    public static final int ERROR_NO_PERMISSION = 1016;
+    public static final int  ERROR_NO_SUCH_USER = 1017;
+    public static final int ERROR_MIN_3_BIDS = 1018;
+
+
+
+
 
 }
