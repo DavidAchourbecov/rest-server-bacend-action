@@ -11,6 +11,7 @@ import com.dev.responses.AllUsersResponse;
 import com.dev.responses.BasicResponse;
 import com.dev.responses.MainTableModelResponse;
 import com.dev.responses.UserDetailsModelResponse;
+import com.dev.utils.Constants;
 import com.dev.utils.Errors;
 import com.dev.utils.Persist;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +86,7 @@ public class ManageController {
             List<MainTableModel> mainTable = new ArrayList<>();
             for (Product product : products) {
                 List<Action> actions = persist.getGeneralBidsByProductId(product.getId());
-                MainTableModel mainTableModel = new MainTableModel(product, actions, 0);
+                MainTableModel mainTableModel = new MainTableModel(product, actions, 0 , Constants.FIRST_DATA,0);
                 mainTable.add(mainTableModel);
             }
             basicResponse = new MainTableModelResponse(true, null, mainTable);
