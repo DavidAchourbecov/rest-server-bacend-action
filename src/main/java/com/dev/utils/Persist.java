@@ -60,10 +60,13 @@ public class Persist {
     }
 
     public List<User> getAllUsers() {
+        boolean admin = false;
         Session session = sessionFactory.openSession();
-        List<User> allUsers = session.createQuery("FROM User ").list();
+        List<User> allUsersNoAdmin = session.createQuery("FROM User WHERE isAdmin = :admin")
+                .setParameter("admin", admin)
+                .list();
         session.close();
-        return allUsers;
+        return allUsersNoAdmin;
     }
 
     public List<Product> getAllOpenOrCloseTrades(boolean openToAction) {

@@ -1,6 +1,7 @@
 package com.dev.controllers;
 
 
+import com.dev.objects.Statistics;
 import com.dev.responses.BasicResponse;
 import com.dev.responses.StatisticsResponse;
 import com.dev.utils.Persist;
@@ -35,11 +36,11 @@ public class LifeStatisticsController {
 
 
     @RequestMapping(value = "/sse-statist", method = RequestMethod.GET)
-    public SseEmitter handle(int id) {
-        SseEmitter sseEmitter = new SseEmitter(10L * MINUTE);
+    public SseEmitter handle() {
+        SseEmitter sseEmitter = new SseEmitter(10L * MINUTE*1000*1000 *1000*1000*1000);
         emitterList.add(sseEmitter);
-        sseEmitter.onCompletion(() -> emitterList.remove(sseEmitter));
-        sseEmitter.onTimeout(() -> emitterList.remove(sseEmitter));
+        //sseEmitter.onCompletion(() -> emitterList.remove(sseEmitter));
+       //sseEmitter.onTimeout(() -> emitterList.remove(sseEmitter));
         return sseEmitter;
     }
 
@@ -53,8 +54,7 @@ public class LifeStatisticsController {
             try {
                 emitter.send(response);
             } catch (IOException e) {
-                emitter.completeWithError(e);
-                emitterList.remove(emitter);
+                e.printStackTrace();
             }
         }
     }
@@ -67,7 +67,8 @@ public class LifeStatisticsController {
         int numCloseTenders = persist.getAllOpenOrCloseTrades(false).size();
         int numOpenBids = persist.getAllOpenOrCloseActions(true).size();
         int numCloseBids = persist.getAllOpenOrCloseActions(false).size();
-        response = new StatisticsResponse(true,null,usersCount,numOpenTenders,numCloseTenders,numOpenBids,numCloseBids);
+        Statistics statistics = new Statistics(usersCount, numOpenTenders, numCloseTenders, numOpenBids, numCloseBids);
+        response = new StatisticsResponse(true,null,statistics);
         return response;
     }
 

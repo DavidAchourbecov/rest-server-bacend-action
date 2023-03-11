@@ -1,22 +1,20 @@
 package com.dev.responses;
 
+import com.dev.objects.User;
+
 public class UsernameResponse extends BasicResponse {
-    private String username;
+    private User user;
 
-    public UsernameResponse(String username) {
-        this.username = username;
-    }
-
-    public UsernameResponse(boolean success, Integer errorCode, String username) {
+    public UsernameResponse(boolean success, Integer errorCode, User user) {
         super(success, errorCode);
-        this.username = username;
+        this.user = user;
     }
 
-    public String getUsername() {
-        return username;
+    public User getUser() {
+        return user;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUser(User user) {
+        this.user = user;
     }
 }

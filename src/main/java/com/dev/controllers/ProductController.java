@@ -56,7 +56,6 @@ public class ProductController {
                 BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
                 this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
                 creditManagement.setCreditAmount(creditManagement.getCreditAmount() - 2);
-                System.out.println(creditManagement.getCreditAmount());
                 persist.updateCreditManagement(creditManagement);
                 User admin = persist.getUserByUsername("admin");
                 CreditManagement creditManagementAdmin = persist.getCreditManagement(admin.getId());

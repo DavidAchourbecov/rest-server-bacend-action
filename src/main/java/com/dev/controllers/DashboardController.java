@@ -27,12 +27,12 @@ public class DashboardController {
     @Autowired
     private LiveUpdatesController liveUpdatesController;
 
-    @RequestMapping (value = "get-username", method = RequestMethod.GET)
+    @RequestMapping (value = "get-user", method = {RequestMethod.GET, RequestMethod.POST})
     public BasicResponse getUsername (String token) {
         User user = persist.getUserByToken(token);
         BasicResponse basicResponse = null;
         if (user != null) {
-            basicResponse = new UsernameResponse(true, null, user.getUsername());
+            basicResponse = new UsernameResponse(true, null, user);
         } else {
             basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
         }

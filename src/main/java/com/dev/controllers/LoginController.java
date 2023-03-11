@@ -100,7 +100,7 @@ public class LoginController {
         return basicResponse;
     }
 
-    @RequestMapping(value = "get-credit" , method = RequestMethod.GET)
+    @RequestMapping(value = "get-credit" , method = {RequestMethod.GET, RequestMethod.POST})
     public  BasicResponse getCredit (String token){
         BasicResponse basicResponse = null;
         User user = persist.getUserByToken(token);

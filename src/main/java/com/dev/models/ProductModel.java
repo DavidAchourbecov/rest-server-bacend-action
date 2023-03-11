@@ -20,6 +20,7 @@ public class ProductModel {
     private String username;
     private int numOpenBids;
     private List<ActionModel> myBids;
+    private int publishUserId;
 
 
     public ProductModel(Product product,int  numOpenBids,List<Action> action){
@@ -31,6 +32,7 @@ public class ProductModel {
         this.openToAction = product.getOpenToAction();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         this.publishDate = simpleDateFormat.format(product.getPublishDate());
+        this.publishUserId = product.getUser().getId();
         this.username = product.getUser().getUsername();
         this.numOpenBids = numOpenBids;
         this.myBids =new ArrayList<>();
@@ -40,6 +42,15 @@ public class ProductModel {
 
 
 
+    }
+
+
+    public int getPublishUserId() {
+        return publishUserId;
+    }
+
+    public void setPublishUserId(int publishUserId) {
+        this.publishUserId = publishUserId;
     }
 
 

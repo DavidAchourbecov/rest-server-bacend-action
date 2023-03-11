@@ -46,7 +46,7 @@ public class ManageController {
         return basicResponse;
     }
 
-    @RequestMapping (value = "get-user", method = RequestMethod.GET)
+    @RequestMapping (value = "get-user-details", method = RequestMethod.GET)
     public BasicResponse getUserDetails (int userId){
         BasicResponse basicResponse = null;
         User user = persist.getUserById(userId);
@@ -76,27 +76,7 @@ public class ManageController {
         return basicResponse;
     }
 
-    @RequestMapping (value = "get-table", method = RequestMethod.GET)
 
-    public BasicResponse getTable (String token){
-        BasicResponse basicResponse = null;
-        User user = persist.getUserByToken(token);
-        if (user != null) {
-            List <Product> products = persist.getProductsOpenToAction();
-            List<MainTableModel> mainTable = new ArrayList<>();
-            for (Product product : products) {
-                List<Action> actions = persist.getGeneralBidsByProductId(product.getId());
-                MainTableModel mainTableModel = new MainTableModel(product, actions, 0 , Constants.FIRST_DATA,0);
-                mainTable.add(mainTableModel);
-            }
-            basicResponse = new MainTableModelResponse(true, null, mainTable);
-
-
-        } else {
-            basicResponse = new BasicResponse(false, Errors.ERROR_NO_SUCH_TOKEN);
-        }
-        return basicResponse;
-    }
 
 
 

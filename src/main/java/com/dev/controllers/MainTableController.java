@@ -23,22 +23,46 @@ public class MainTableController {
     @Autowired
     private Persist persist;
 
-    @RequestMapping(value = "/get-main-table", method = RequestMethod.GET)
-    public BasicResponse getMainTableByToken (String token) {
+    @RequestMapping(value = "/get-main-table", method = {RequestMethod.GET, RequestMethod.POST})
+    public BasicResponse getMainTableByToken(String token) {
         BasicResponse basicResponse = null;
         User user = persist.getUserByToken(token);
         if (user != null) {
-            List<Product> products = persist.getProductsOpenToActionByUserId(user.getId());
-            List<MainTableModel> mainTableModels = new ArrayList<>();
-            for (Product product : products) {
-                List<Action> actions = persist.getGeneralBidsByProductId(product.getId());
-                MainTableModel mainTableModel = new MainTableModel(product, actions, user.getId(), Constants.FIRST_DATA,0);
-                mainTableModels.add(mainTableModel);
+            if (user.getAdmin()) {
+                basicResponse = getMainTableAdmin();
+
+            } else {
+                List<Product> products = persist.getProductsOpenToActionByUserId(user.getId());
+                List<MainTableModel> mainTableModels = new ArrayList<>();
+                for (Product product : products) {
+                    List<Action> actions = persist.getGeneralBidsByProductId(product.getId());
+                    MainTableModel mainTableModel = new MainTableModel(product, actions, user.getId(), Constants.FIRST_DATA, 0);
+                    mainTableModels.add(mainTableModel);
+                }
+                basicResponse = new MainTableModelResponse(true, null, mainTableModels);
             }
-            basicResponse = new MainTableModelResponse(true, null, mainTableModels);
+
         } else {
             basicResponse = new BasicResponse(false, Errors.ERROR_NO_SUCH_TOKEN);
         }
         return basicResponse;
     }
+
+    public BasicResponse getMainTableAdmin() {
+        BasicResponse basicResponse = null;
+        List<Product> products = persist.getProductsOpenToAction();
+        List<MainTableModel> mainTable = new ArrayList<>();
+        for (Product product : products) {
+            List<Action> actions = persist.getGeneralBidsByProductId(product.getId());
+            MainTableModel mainTableModel = new MainTableModel(product, actions, 0, Constants.FIRST_DATA, 0);
+            mainTable.add(mainTableModel);
+        }
+        basicResponse = new MainTableModelResponse(true, null, mainTable);
+        return basicResponse;
+    }
+
+
 }
+
+
+
