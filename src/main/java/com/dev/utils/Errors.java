@@ -20,6 +20,7 @@ public class Errors {
     public static final int ERROR_NO_PERMISSION = 1016;
     public static final int  ERROR_NO_SUCH_USER = 1017;
     public static final int ERROR_MIN_3_BIDS = 1018;
+    public static final int ERROR_BIG_AMOUNT  = 1019;
 
 
 

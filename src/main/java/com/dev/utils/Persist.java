@@ -133,6 +133,17 @@ public class Persist {
         return product;
     }
 
+    public  Action getActionByProductIdAndUserId(int id, int userId, boolean lastOffer) {
+        Session session = sessionFactory.openSession();
+        Action action = (Action) session.createQuery("FROM Action WHERE product.id = :id AND userSuggest.id = :userId AND lastOffer = :lastOffer")
+                .setParameter("id", id)
+                .setParameter("userId", userId)
+                .setParameter("lastOffer", lastOffer)
+                .uniqueResult();
+        session.close();
+        return action;
+    }
+
 
     public List<Action> getActionsByProductId(int id) {
         Session session = sessionFactory.openSession();
@@ -208,10 +219,11 @@ public class Persist {
         session.close();
     }
 
-    public void saveAction(Action action) {
+    public int saveAction(Action action) {
         Session session = sessionFactory.openSession();
-         session.save(action);
+        int id = (int) session.save(action);
         session.close();
+        return id;
     }
 
     public List<Action> getActionsByUserId(int userId) {

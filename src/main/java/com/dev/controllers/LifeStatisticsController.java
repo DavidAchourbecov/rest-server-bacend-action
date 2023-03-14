@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -37,10 +34,10 @@ public class LifeStatisticsController {
 
     @RequestMapping(value = "/sse-statist", method = RequestMethod.GET)
     public SseEmitter handle() {
-        SseEmitter sseEmitter = new SseEmitter(10L * MINUTE*1000*1000 *1000*1000*1000);
+        SseEmitter sseEmitter = new SseEmitter(10L * MINUTE*1000);
         emitterList.add(sseEmitter);
-        //sseEmitter.onCompletion(() -> emitterList.remove(sseEmitter));
-       //sseEmitter.onTimeout(() -> emitterList.remove(sseEmitter));
+        sseEmitter.onCompletion(() -> emitterList.remove(sseEmitter));
+       sseEmitter.onTimeout(() -> emitterList.remove(sseEmitter));
         return sseEmitter;
     }
 
@@ -48,13 +45,17 @@ public class LifeStatisticsController {
 
     public void sendUpdatesStatistics(BasicResponse response) {
         if (emitterList.size() == 0) {
-            return;
+            return ;
         }
-        for (SseEmitter emitter : emitterList) {
+
+        Iterator<SseEmitter> iterator = emitterList.iterator();
+        while (iterator.hasNext()) {
+            SseEmitter emitter = iterator.next();
             try {
                 emitter.send(response);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                emitter.completeWithError(e);
+                iterator.remove();
             }
         }
     }

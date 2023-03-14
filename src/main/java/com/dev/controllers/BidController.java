@@ -7,6 +7,7 @@ import com.dev.objects.CreditManagement;
 import com.dev.objects.Product;
 import com.dev.objects.User;
 import com.dev.responses.BasicResponse;
+import com.dev.responses.BidResponse;
 import com.dev.responses.MyBidsModelResponse;
 import com.dev.utils.Constants;
 import com.dev.utils.Errors;
@@ -34,63 +35,87 @@ public class BidController {
     public BasicResponse addBid(String token, int productId, double bidAmount) {
         BasicResponse basicResponse = null;
         User user = persist.getUserByToken(token);
+        int id = 0;
         if (user != null) {
             CreditManagement creditManagement = persist.getCreditManagement(user.getId());
             if (creditManagement == null) {
                 basicResponse = new BasicResponse(false, Errors.ERROR_NO_CREDIT);
                 return basicResponse;
             }
+            Product product = persist.getProductById(productId);
+
+            if (product == null) {
+                basicResponse = new BasicResponse(false, Errors.ERROR_NO_PRODUCT);
+                return basicResponse;
+            }
+
+            Product checkUserProduct = persist.getProductByProductIdAndUserId(productId,user.getId());
+            if(checkUserProduct != null){
+                basicResponse = new BasicResponse(false, Errors.ERROR_USER_IS_OWNER);
+                return basicResponse;
+            }
+
+
+            if (!product.getOpenToAction()) {
+                basicResponse = new BasicResponse(false, Errors.ERROR_PRODUCT_NOT_OPEN_TO_ACTION);
+                return basicResponse;
+            }
+
+            if (product.getMinimumPrice() > bidAmount) {
+                basicResponse = new BasicResponse(false, Errors.ERROR_BID_AMOUNT);
+                return basicResponse;
+            }
+
             if (creditManagement.getCreditAmount() < bidAmount) {
                 basicResponse = new BasicResponse(false, Errors.ERROR_NOT_ENOUGH_CREDIT);
                 return basicResponse;
             } else {
-                Product product = persist.getProductById(productId);
-                if (product == null) {
-                    basicResponse = new BasicResponse(false, Errors.ERROR_NO_PRODUCT);
-                    return basicResponse;
+
+                Action checkUserAction = persist.getActionByProductIdAndUserIdAndLastOffer(productId, user.getId(), true);
+                if (checkUserAction !=null){
+                    if (checkUserAction.getUserSuggestAmount() >= bidAmount){
+                        basicResponse = new BasicResponse(false, Errors.ERROR_BIG_AMOUNT);
+                        return basicResponse;
+                    }else {
+                        checkUserAction.setLastOffer(false);
+                        persist.updateAction(checkUserAction);
+                    }
+
                 }
 
-                Product checkUserProduct = persist.getProductByProductIdAndUserId(productId,user.getId());
-                if(checkUserProduct != null){
-                    basicResponse = new BasicResponse(false, Errors.ERROR_USER_IS_OWNER);
-                    return basicResponse;
-                }
 
-                if (product.getMinimumPrice() > bidAmount) {
-                    basicResponse = new BasicResponse(false, Errors.ERROR_BID_AMOUNT);
-                    return basicResponse;
-                }
-                if (!product.getOpenToAction()) {
-                    basicResponse = new BasicResponse(false, Errors.ERROR_PRODUCT_NOT_OPEN_TO_ACTION);
-                    return basicResponse;
-                }
+
+
+
                 Action actionAction = persist.getActionByProductIdAndUserIdAndLastOffer(productId, user.getId(), true);
-                BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
-                this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
+               // BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
+               // this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
+
                 if (actionAction == null) {
                     Action action = new Action(user, bidAmount, product, true, Constants.NO_RESULT);
-                    persist.saveAction(action);
+                   id= persist.saveAction(action);
                     creditManagement.setCreditAmount(creditManagement.getCreditAmount() - bidAmount - 1);
                     this.updateCreditManagement(creditManagement);
                     this.paymentSystem();
-                    basicResponse = new BasicResponse(true, null);
+                    this.sendUpdatesMainTable(productId,product,user,token);
+                    basicResponse =new BidResponse(true, null, id,bidAmount);
                 } else {
                     if (actionAction.getUserSuggestAmount() < bidAmount) {
                         actionAction.setLastOffer(false);
                         Action action = new Action(user, bidAmount, product, true, Constants.NO_RESULT);
                         persist.updateAction(actionAction);
-                        persist.saveAction(action);
+                       id= persist.saveAction(action);
                         double amount = bidAmount - actionAction.getUserSuggestAmount();
                         creditManagement.setCreditAmount(creditManagement.getCreditAmount() - amount - 1);
                         this.updateCreditManagement(creditManagement);
                         this.paymentSystem();
-                        basicResponse = new BasicResponse(true, null);
+                        this.sendUpdatesMainTable(productId,product,user,token);
+                        basicResponse =new BidResponse(true, null, id,bidAmount);
                     } else {
                         basicResponse = new BasicResponse(false, Errors.ERROR_BID_AMOUNT);
                     }
-
                     List<Action> actionList = persist.getActionsByProductId(productId);
-                    MainTableModel mainTableModel = new MainTableModel(product, actionList,user.getId(),Constants.STATUS_ADD_BID,user.getId());
+                    MainTableModel mainTableModel = new MainTableModel(product, actionList,user.getId(),Constants.STATUS_ADD_BID,token);
                     this.liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
 
                 }
@@ -131,6 +156,13 @@ public class BidController {
             basicResponse = new BasicResponse(false, Errors.ERROR_NO_SUCH_TOKEN);
         }
         return basicResponse;
+    }
+
+    public void sendUpdatesMainTable(int productId,Product product,User user,String token) {
+        List<Action> actionList = persist.getActionsByProductId(productId);
+        MainTableModel mainTableModel = new MainTableModel(product, actionList,user.getId(),Constants.STATUS_ADD_BID,token);
+        this.liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
+
     }
 
 

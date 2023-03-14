@@ -32,11 +32,11 @@ public class MainTableController {
                 basicResponse = getMainTableAdmin();
 
             } else {
-                List<Product> products = persist.getProductsOpenToActionByUserId(user.getId());
+                List<Product> products = persist.getProductsOpenToAction();
                 List<MainTableModel> mainTableModels = new ArrayList<>();
                 for (Product product : products) {
                     List<Action> actions = persist.getGeneralBidsByProductId(product.getId());
-                    MainTableModel mainTableModel = new MainTableModel(product, actions, user.getId(), Constants.FIRST_DATA, 0);
+                    MainTableModel mainTableModel = new MainTableModel(product, actions, user.getId(), Constants.FIRST_DATA, token);
                     mainTableModels.add(mainTableModel);
                 }
                 basicResponse = new MainTableModelResponse(true, null, mainTableModels);
@@ -54,7 +54,7 @@ public class MainTableController {
         List<MainTableModel> mainTable = new ArrayList<>();
         for (Product product : products) {
             List<Action> actions = persist.getGeneralBidsByProductId(product.getId());
-            MainTableModel mainTableModel = new MainTableModel(product, actions, 0, Constants.FIRST_DATA, 0);
+            MainTableModel mainTableModel = new MainTableModel(product, actions, 0, Constants.FIRST_DATA, "");
             mainTable.add(mainTableModel);
         }
         basicResponse = new MainTableModelResponse(true, null, mainTable);

@@ -50,7 +50,7 @@ public class ProductController {
             } else {
                 Product product = new Product(productName, content, imageLink, minimumPrice, openToAction, user);
                 product.setId(persist.saveProduct(product));
-                MainTableModel mainTableModel = new MainTableModel(product, new ArrayList<Action>(), 0,Constants.STATUS_ADD_PRODUCT,0);
+                MainTableModel mainTableModel = new MainTableModel(product, new ArrayList<Action>(), 0,Constants.STATUS_ADD_PRODUCT,token);
                 liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
 
                 BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
@@ -69,8 +69,9 @@ public class ProductController {
         return basicResponse;
     }
 
-    @RequestMapping(value = "get-product", method = {RequestMethod.POST, RequestMethod.GET})
+    @RequestMapping(value = "/get-product", method = {RequestMethod.POST, RequestMethod.GET})
     public BasicResponse getProduct(String token, int productId) {
+
         BasicResponse basicResponse = null;
         User user = persist.getUserByToken(token);
         if (user != null) {
@@ -106,7 +107,7 @@ public class ProductController {
                 } else {
                     product.setOpenToAction(false);
                     persist.updateProduct(product);
-                    MainTableModel mainTableModel = new MainTableModel(product, actions, 0,Constants.STATUS_CLOSE_PRODUCT,0);
+                    MainTableModel mainTableModel = new MainTableModel(product, actions, 0,Constants.STATUS_CLOSE_PRODUCT,token);
                     liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
                     BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
                     this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);

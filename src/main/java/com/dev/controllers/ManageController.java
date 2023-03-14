@@ -28,7 +28,7 @@ public class ManageController {
     @Autowired
     private Persist persist;
 
-    @RequestMapping (value = "get-all-users", method = RequestMethod.GET)
+    @RequestMapping (value = "get-all-users",  method ={RequestMethod.GET,RequestMethod.POST})
     public BasicResponse getAllUsers (String token) {
         BasicResponse basicResponse = null;
         User user = persist.getUserByToken(token);
@@ -46,7 +46,7 @@ public class ManageController {
         return basicResponse;
     }
 
-    @RequestMapping (value = "get-user-details", method = RequestMethod.GET)
+    @RequestMapping (value = "get-user-details", method ={RequestMethod.GET,RequestMethod.POST} )
     public BasicResponse getUserDetails (int userId){
         BasicResponse basicResponse = null;
         User user = persist.getUserById(userId);
@@ -61,7 +61,7 @@ public class ManageController {
         return basicResponse;
     }
 
-    @RequestMapping (value = "update-credit-amount-user", method = RequestMethod.GET)
+    @RequestMapping (value = "update-credit-amount-user", method ={RequestMethod.GET,RequestMethod.POST})
     public BasicResponse updateCreditAmountUser(double amount, int userId){
         BasicResponse basicResponse = null;
         User user = persist.getUserById(userId);

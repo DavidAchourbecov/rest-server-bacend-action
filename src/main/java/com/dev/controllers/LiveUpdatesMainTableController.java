@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.dev.utils.Constants.MINUTE;
 
@@ -22,11 +19,11 @@ public class LiveUpdatesMainTableController {
     private Persist persist;
 
     private List<SseEmitter> emitterList = new ArrayList<>();
-    private Map<String, SseEmitter> emitterMap = new HashMap<>();
+
 
     @RequestMapping (value = "/sse-handler-main-table", method = RequestMethod.GET)
     public SseEmitter handle () {
-        SseEmitter sseEmitter = new SseEmitter(10L * MINUTE*1000*1000 *1000*1000*1000*10000);
+        SseEmitter sseEmitter = new SseEmitter(10L * MINUTE);
         emitterList.add(sseEmitter);
         sseEmitter.onCompletion(() -> emitterList.remove(sseEmitter));
        sseEmitter.onTimeout(() -> emitterList.remove(sseEmitter));
@@ -35,16 +32,17 @@ public class LiveUpdatesMainTableController {
 
 
     public void sendUpdatesMainTable(MainTableModel mainTableModel) {
-        if (emitterList.size() == 0) {
-            return;
-        }
 
-        for (SseEmitter emitter : emitterList) {
+
+        Iterator<SseEmitter> iterator = emitterList.iterator();
+        System.out.println("emitterList.size() = " + emitterList.size());
+        while (iterator.hasNext()) {
+            SseEmitter emitter = iterator.next();
             try {
                 emitter.send(mainTableModel);
             } catch (Exception e) {
                 emitter.completeWithError(e);
-                emitterList.remove(emitter);
+                iterator.remove();
             }
         }
     }
