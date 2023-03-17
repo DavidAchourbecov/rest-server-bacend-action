@@ -23,7 +23,7 @@ public class LiveUpdatesMainTableController {
 
     @RequestMapping (value = "/sse-handler-main-table", method = RequestMethod.GET)
     public SseEmitter handle () {
-        SseEmitter sseEmitter = new SseEmitter(10L * MINUTE);
+        SseEmitter sseEmitter = new SseEmitter(10L * MINUTE*1000);
         emitterList.add(sseEmitter);
         sseEmitter.onCompletion(() -> emitterList.remove(sseEmitter));
        sseEmitter.onTimeout(() -> emitterList.remove(sseEmitter));
@@ -32,8 +32,6 @@ public class LiveUpdatesMainTableController {
 
 
     public void sendUpdatesMainTable(MainTableModel mainTableModel) {
-
-
         Iterator<SseEmitter> iterator = emitterList.iterator();
         System.out.println("emitterList.size() = " + emitterList.size());
         while (iterator.hasNext()) {

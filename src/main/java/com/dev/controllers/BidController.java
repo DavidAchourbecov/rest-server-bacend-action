@@ -30,12 +30,20 @@ public class BidController {
     @Autowired
     private LiveUpdatesMainTableController liveUpdatesMainTableController;
 
+    @Autowired
+    private LiveUpdatesController liveUpdatesController;
+
     @RequestMapping(value = "add-bid", method = {RequestMethod.POST, RequestMethod.GET})
 
     public BasicResponse addBid(String token, int productId, double bidAmount) {
         BasicResponse basicResponse = null;
         User user = persist.getUserByToken(token);
         int id = 0;
+        if (user.getAdmin()){
+            basicResponse = new BasicResponse(false, Errors.ERROR_NO_PERMISSION);
+            return basicResponse;
+        }
+
         if (user != null) {
             CreditManagement creditManagement = persist.getCreditManagement(user.getId());
             if (creditManagement == null) {
@@ -76,11 +84,7 @@ public class BidController {
                     if (checkUserAction.getUserSuggestAmount() >= bidAmount){
                         basicResponse = new BasicResponse(false, Errors.ERROR_BIG_AMOUNT);
                         return basicResponse;
-                    }else {
-                        checkUserAction.setLastOffer(false);
-                        persist.updateAction(checkUserAction);
                     }
-
                 }
 
 
@@ -90,14 +94,14 @@ public class BidController {
                 Action actionAction = persist.getActionByProductIdAndUserIdAndLastOffer(productId, user.getId(), true);
                // BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
                // this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
-
+                this.sendUpdatesMainTable(productId,product,user,token);
                 if (actionAction == null) {
                     Action action = new Action(user, bidAmount, product, true, Constants.NO_RESULT);
                    id= persist.saveAction(action);
                     creditManagement.setCreditAmount(creditManagement.getCreditAmount() - bidAmount - 1);
                     this.updateCreditManagement(creditManagement);
                     this.paymentSystem();
-                    this.sendUpdatesMainTable(productId,product,user,token);
+                    //this.sendUpdatesMainTable(productId,product,user,token);
                     basicResponse =new BidResponse(true, null, id,bidAmount);
                 } else {
                     if (actionAction.getUserSuggestAmount() < bidAmount) {
@@ -109,14 +113,14 @@ public class BidController {
                         creditManagement.setCreditAmount(creditManagement.getCreditAmount() - amount - 1);
                         this.updateCreditManagement(creditManagement);
                         this.paymentSystem();
-                        this.sendUpdatesMainTable(productId,product,user,token);
+                        //this.sendUpdatesMainTable(productId,product,user,token);
                         basicResponse =new BidResponse(true, null, id,bidAmount);
                     } else {
                         basicResponse = new BasicResponse(false, Errors.ERROR_BID_AMOUNT);
                     }
-                    List<Action> actionList = persist.getActionsByProductId(productId);
-                    MainTableModel mainTableModel = new MainTableModel(product, actionList,user.getId(),Constants.STATUS_ADD_BID,token);
-                    this.liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
+                   // List<Action> actionList = persist.getActionsByProductId(productId);
+                    //MainTableModel mainTableModel = new MainTableModel(product, actionList,user.getId(),Constants.STATUS_ADD_BID,token);
+                    //this.liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
 
                 }
 

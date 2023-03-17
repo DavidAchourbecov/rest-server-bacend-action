@@ -16,6 +16,8 @@ public class MainTableModel {
     private int publishUserId;
     private int statement;
     private String bidToken;
+    private String publishToken;
+
 
      public MainTableModel(Product product, List<Action> actions,int userId, int statement, String bidToken) {
         this.id = product.getId();
@@ -26,6 +28,7 @@ public class MainTableModel {
         this.generalBids = actions.size();
         this.statement = statement;
         this.publishUserId = product.getUser().getId();
+        this.publishToken = product.getUser().getToken();
         this.bidToken = bidToken;
         this.myBids = 0;
         if (userId == 0){
@@ -114,5 +117,13 @@ public class MainTableModel {
 
     public void setBidToken(String bidToken) {
         this.bidToken = bidToken;
+    }
+
+    public String getPublishToken() {
+        return publishToken;
+    }
+
+    public void setPublishToken(String publishToken) {
+        this.publishToken = publishToken;
     }
 }

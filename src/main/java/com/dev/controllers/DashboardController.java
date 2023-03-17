@@ -87,7 +87,7 @@ public class DashboardController {
             if (recipient != null) {
                 Message message = new Message(user, recipient, content);
                 persist.saveMessage(message);
-                liveUpdatesController.sendConversationMessage(user.getId(), recipientId);
+                liveUpdatesController.sendConversationMessage(user.getId());
                 basicResponse = new BasicResponse(true, null);
             } else {
                 basicResponse = new BasicResponse(false, ERROR_NO_SUCH_RECIPIENT);
@@ -104,7 +104,7 @@ public class DashboardController {
         BasicResponse basicResponse = null;
         User user = persist.getUserByToken(token);
         if (user != null) {
-            liveUpdatesController.sendStartTypingEvent(user.getId(), recipientId);
+           // liveUpdatesController.sendStartTypingEvent(user.getId(), recipientId);
         } else {
             basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
         }

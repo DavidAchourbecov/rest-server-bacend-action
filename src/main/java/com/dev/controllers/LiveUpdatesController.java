@@ -1,6 +1,7 @@
 package com.dev.controllers;
 
 
+import com.dev.models.MainTableModel;
 import com.dev.models.MessageModel;
 import com.dev.objects.User;
 import com.dev.utils.Persist;
@@ -48,35 +49,35 @@ public class LiveUpdatesController {
 //    }
 
     @RequestMapping (value = "/sse-handler", method = RequestMethod.GET)
-    public SseEmitter handle (String token, int recipientId) {
+    public SseEmitter handle (String token) {
         User user = persist.getUserByToken(token);
         SseEmitter sseEmitter = null;
         if (user != null) {
             sseEmitter = new SseEmitter(10L * MINUTE);
-            String key = createKey(user.getId(), recipientId);
+            String key = createKey(user.getId());
             this.emitterMap.put(key, sseEmitter);
         }
         return sseEmitter;
     }
 
-    private String createKey (int senderId, int recipientId) {
-        return String.format("%d_%d", senderId, recipientId);
+    private String createKey (int senderId) {
+        return String.format("%d_%d", senderId);
     }
 
-    public void sendStartTypingEvent (int senderId, int recipientId) {
-        String key = createKey(recipientId, senderId);
+    public void sendStartTypingEvent (int senderId, MainTableModel mainTableModel) {
+        String key = createKey(senderId);
         SseEmitter conversationEmitter = this.emitterMap.get(key);
         if (conversationEmitter != null) {
             try {
-                conversationEmitter.send(EVENT_TYPING);
+                conversationEmitter.send(mainTableModel);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void sendConversationMessage (int senderId, int recipientId) {
-        String key = createKey(recipientId, senderId);
+    public void sendConversationMessage (int senderId) {
+        String key = createKey(senderId);
         SseEmitter conversationEmitter = this.emitterMap.get(key);
         if (conversationEmitter != null) {
             MessageModel messageModel = new MessageModel();
