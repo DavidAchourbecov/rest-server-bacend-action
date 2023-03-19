@@ -164,7 +164,7 @@ public class BidController {
 
     public void sendUpdatesMainTable(int productId,Product product,User user,String token) {
         List<Action> actionList = persist.getActionsByProductId(productId);
-        MainTableModel mainTableModel = new MainTableModel(product, actionList,user.getId(),Constants.STATUS_ADD_BID,token);
+        MainTableModel mainTableModel = new MainTableModel(product, actionList,user.getId(),Constants.STATUS_ADD_BID,token,user.getUsername());
         this.liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
 
     }

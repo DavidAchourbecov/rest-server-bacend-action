@@ -17,9 +17,10 @@ public class MainTableModel {
     private int statement;
     private String bidToken;
     private String publishToken;
+    private String usernameWinnerOrBidder;
 
 
-     public MainTableModel(Product product, List<Action> actions,int userId, int statement, String bidToken) {
+     public MainTableModel(Product product, List<Action> actions,int userId, int statement, String bidToken, String usernameWinnerOrBidder) {
         this.id = product.getId();
         this.name = product.getProductName();
         this.linkImage = product.getImageLink();
@@ -27,6 +28,7 @@ public class MainTableModel {
         this.date = simpleDateFormat.format(product.getPublishDate());
         this.generalBids = actions.size();
         this.statement = statement;
+        this.usernameWinnerOrBidder = usernameWinnerOrBidder;
         this.publishUserId = product.getUser().getId();
         this.publishToken = product.getUser().getToken();
         this.bidToken = bidToken;
@@ -125,5 +127,13 @@ public class MainTableModel {
 
     public void setPublishToken(String publishToken) {
         this.publishToken = publishToken;
+    }
+
+    public String getUsernameWinnerOrBidder() {
+        return usernameWinnerOrBidder;
+    }
+
+    public void setUsernameWinnerOrBidder(String usernameWinnerOrBidder) {
+        this.usernameWinnerOrBidder = usernameWinnerOrBidder;
     }
 }

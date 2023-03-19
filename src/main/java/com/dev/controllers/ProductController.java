@@ -50,7 +50,7 @@ public class ProductController {
             } else {
                 Product product = new Product(productName, content, imageLink, minimumPrice, openToAction, user);
                 product.setId(persist.saveProduct(product));
-                MainTableModel mainTableModel = new MainTableModel(product, new ArrayList<Action>(), 0,Constants.STATUS_ADD_PRODUCT,token);
+                MainTableModel mainTableModel = new MainTableModel(product, new ArrayList<Action>(), 0,Constants.STATUS_ADD_PRODUCT,token,"");
                 liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
 
                 BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
@@ -107,14 +107,15 @@ public class ProductController {
                 } else {
                     product.setOpenToAction(false);
                     persist.updateProduct(product);
-                    MainTableModel mainTableModel = new MainTableModel(product, actions, 0,Constants.STATUS_CLOSE_PRODUCT,token);
-                    liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
+
                     BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
                     this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
                     List<Action> actionsWinner = persist.updateWinnerActionsByProductIdMaxAmountLastOffer(productId);
                     Action action = this.getWinnerAction(actionsWinner, productId);
                     action.setWinner(Constants.WINNER);
                     persist.updateAction(action);
+                    MainTableModel mainTableModel = new MainTableModel(product, actions, 0,Constants.STATUS_CLOSE_PRODUCT,action.getUserSuggest().getToken(),action.getUserSuggest().getUsername());
+                    liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
                     persist.updateCreditManagementToLoserActionByProductId(productId, true, action.getUserSuggest());
                     User admin = persist.getUserByUsername("admin");
                     CreditManagement creditManagement = persist.getCreditManagement(user.getId());
