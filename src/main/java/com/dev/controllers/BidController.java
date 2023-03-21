@@ -24,14 +24,10 @@ import java.util.List;
 public class BidController {
     @Autowired
     private Persist persist;
-    @Autowired
-    private LifeStatisticsController lifeStatisticsController;
 
     @Autowired
     private LiveUpdatesMainTableController liveUpdatesMainTableController;
 
-    @Autowired
-    private LiveUpdatesController liveUpdatesController;
 
     @RequestMapping(value = "add-bid", method = {RequestMethod.POST, RequestMethod.GET})
 
@@ -87,21 +83,23 @@ public class BidController {
                     }
                 }
 
-
-
-
-
                 Action actionAction = persist.getActionByProductIdAndUserIdAndLastOffer(productId, user.getId(), true);
-               // BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
-               // this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
-                this.sendUpdatesMainTable(productId,product,user,token);
                 if (actionAction == null) {
+                    if (creditManagement.getCreditAmount() < bidAmount + 1) {
+                        basicResponse = new BasicResponse(false, Errors.ERROR_NOT_ENOUGH_CREDIT);
+                        return basicResponse;
+                    }
                     Action action = new Action(user, bidAmount, product, true, Constants.NO_RESULT);
-                   id= persist.saveAction(action);
+                    id= persist.saveAction(action);
+                    if (id == 0) {
+                        basicResponse = new BasicResponse(false, Errors.ERROR_SOMETHING_WENT_WRONG);
+                        return basicResponse;
+                    }
+
                     creditManagement.setCreditAmount(creditManagement.getCreditAmount() - bidAmount - 1);
                     this.updateCreditManagement(creditManagement);
                     this.paymentSystem();
-                    //this.sendUpdatesMainTable(productId,product,user,token);
+                    this.sendUpdatesMainTable(productId,product,user,token);
                     basicResponse =new BidResponse(true, null, id,bidAmount);
                 } else {
                     if (actionAction.getUserSuggestAmount() < bidAmount) {
@@ -109,18 +107,20 @@ public class BidController {
                         Action action = new Action(user, bidAmount, product, true, Constants.NO_RESULT);
                         persist.updateAction(actionAction);
                        id= persist.saveAction(action);
+                        if (id == 0) {
+                            basicResponse = new BasicResponse(false, Errors.ERROR_SOMETHING_WENT_WRONG);
+                            return basicResponse;
+                        }
+
                         double amount = bidAmount - actionAction.getUserSuggestAmount();
                         creditManagement.setCreditAmount(creditManagement.getCreditAmount() - amount - 1);
                         this.updateCreditManagement(creditManagement);
                         this.paymentSystem();
-                        //this.sendUpdatesMainTable(productId,product,user,token);
+                        this.sendUpdatesMainTable(productId,product,user,token);
                         basicResponse =new BidResponse(true, null, id,bidAmount);
                     } else {
                         basicResponse = new BasicResponse(false, Errors.ERROR_BID_AMOUNT);
                     }
-                   // List<Action> actionList = persist.getActionsByProductId(productId);
-                    //MainTableModel mainTableModel = new MainTableModel(product, actionList,user.getId(),Constants.STATUS_ADD_BID,token);
-                    //this.liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
 
                 }
 
@@ -168,8 +168,6 @@ public class BidController {
         this.liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
 
     }
-
-
 
 
 

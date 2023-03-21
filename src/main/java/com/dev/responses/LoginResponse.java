@@ -2,14 +2,13 @@ package com.dev.responses;
 
 public class LoginResponse extends BasicResponse{
     private String token;
+    private  boolean isAdmin;
 
-    public LoginResponse(String token) {
-        this.token = token;
-    }
 
-    public LoginResponse(boolean success, Integer errorCode, String token) {
+    public LoginResponse(boolean success, Integer errorCode, String token, boolean isAdmin) {
         super(success, errorCode);
         this.token = token;
+        this.isAdmin = isAdmin;
     }
 
     public String getToken() {
@@ -18,5 +17,13 @@ public class LoginResponse extends BasicResponse{
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 }

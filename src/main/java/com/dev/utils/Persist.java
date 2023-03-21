@@ -338,33 +338,8 @@ public class Persist {
                 .list();
         session.close();
         return actions;
-
     }
 
-    public List<Message> getMessagesByToken(String token) {
-        Session session = sessionFactory.openSession();
-        List<Message> messages = session.createQuery("FROM Message WHERE recipient.token = :token ")
-                .setParameter("token", token)
-                .list();
-        session.close();
-        return messages;
-    }
-
-    public List<Message> getConversation(String token, int recipientId) {
-        Session session = sessionFactory.openSession();
-        List<Message> messages = session.createQuery(
-                "FROM Message WHERE " +
-                        "(sender.token = :token AND recipient.id = :id)" +
-                        " OR " +
-                        "(sender.id = :id2 AND recipient.token = :token2) ORDER BY id")
-                .setParameter("token", token)
-                .setParameter("token2", token)
-                .setParameter("id", recipientId)
-                .setParameter("id2", recipientId)
-                .list();
-        session.close();
-        return messages;
-    }
 
     public User getUserById(int id) {
         Session session = sessionFactory.openSession();
@@ -375,10 +350,5 @@ public class Persist {
         return user;
     }
 
-    public void saveMessage(Message message) {
-        Session session = sessionFactory.openSession();
-        session.save(message);
-        session.close();
-    }
 
 }

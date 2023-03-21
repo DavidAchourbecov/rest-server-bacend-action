@@ -28,8 +28,6 @@ import static com.dev.utils.Errors.*;
 public class ProductController {
     @Autowired
     private Persist persist;
-    @Autowired
-    private LifeStatisticsController lifeStatisticsController;
 
     @Autowired
     private LiveUpdatesMainTableController liveUpdatesMainTableController;
@@ -44,7 +42,7 @@ public class ProductController {
                 basicResponse = new BasicResponse(false, ERROR_NO_CREDIT);
                 return basicResponse;
             }
-            if (creditManagement.getCreditAmount() < minimumPrice) {
+            if (creditManagement.getCreditAmount() < 2) {
                 basicResponse = new BasicResponse(false, ERROR_NOT_ENOUGH_CREDIT);
                 return basicResponse;
             } else {
@@ -53,8 +51,7 @@ public class ProductController {
                 MainTableModel mainTableModel = new MainTableModel(product, new ArrayList<Action>(), 0,Constants.STATUS_ADD_PRODUCT,token,"");
                 liveUpdatesMainTableController.sendUpdatesMainTable(mainTableModel);
 
-                BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
-                this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
+
                 creditManagement.setCreditAmount(creditManagement.getCreditAmount() - 2);
                 persist.updateCreditManagement(creditManagement);
                 User admin = persist.getUserByUsername("admin");
@@ -108,8 +105,7 @@ public class ProductController {
                     product.setOpenToAction(false);
                     persist.updateProduct(product);
 
-                    BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
-                    this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
+
                     List<Action> actionsWinner = persist.updateWinnerActionsByProductIdMaxAmountLastOffer(productId);
                     Action action = this.getWinnerAction(actionsWinner, productId);
                     action.setWinner(Constants.WINNER);

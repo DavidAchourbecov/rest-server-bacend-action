@@ -1,10 +1,9 @@
 package com.dev.controllers;
 
 import com.dev.objects.CreditManagement;
+import com.dev.objects.Statistics;
 import com.dev.objects.User;
-import com.dev.responses.BasicResponse;
-import com.dev.responses.CreditManagementResponse;
-import com.dev.responses.LoginResponse;
+import com.dev.responses.*;
 import com.dev.utils.Persist;
 import com.dev.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +23,6 @@ public class LoginController {
     @Autowired
     private Persist persist;
 
-    @Autowired
-    private LifeStatisticsController lifeStatisticsController;
 
     @RequestMapping(value = "sign-up")
     public BasicResponse signUp (String username, String password,boolean isAdmin){
@@ -44,8 +41,6 @@ public class LoginController {
                         CreditManagement creditManagement =new CreditManagement(1000,toAdd);
                       persist.createAmountUser(creditManagement);
                         success = true;
-                        BasicResponse basicResponse1 = this.lifeStatisticsController.getStatistics();
-                        this.lifeStatisticsController.sendUpdatesStatistics(basicResponse1);
                     } else {
                         errorCode = ERROR_USERNAME_ALREADY_EXISTS;
                     }
@@ -74,7 +69,7 @@ public class LoginController {
                 User fromDb = persist.getUserByUsernameAndToken(username, token);
                 if (fromDb != null) {
                     success = true;
-                    basicResponse = new LoginResponse(token);
+                    basicResponse = new LoginResponse(success, null, token,fromDb.getAdmin());
                 } else {
                     errorCode = ERROR_WRONG_LOGIN_CREDS;
                 }
@@ -90,15 +85,29 @@ public class LoginController {
     }
 
     @RequestMapping (value = "statist")
-    public BasicResponse getStatistics () {
+    public BasicResponse getStatisticsApi () {
         BasicResponse basicResponse = null;
-        if (this.lifeStatisticsController.getStatistics() != null) {
-            basicResponse = this.lifeStatisticsController.getStatistics();
+        if (this.getStatistics() != null) {
+            basicResponse = this.getStatistics();
         } else {
             basicResponse = new BasicResponse(false, ERROR_STATISTICS);
         }
         return basicResponse;
     }
+
+    public BasicResponse getStatistics() {
+        BasicResponse response = null;
+        int usersCount = persist.getAllUsers().size();
+        int numOpenTenders = persist.getAllOpenOrCloseTrades(true).size();
+        int numCloseTenders = persist.getAllOpenOrCloseTrades(false).size();
+        int numOpenBids = persist.getAllOpenOrCloseActions(true).size();
+        int numCloseBids = persist.getAllOpenOrCloseActions(false).size();
+        Statistics statistics = new Statistics(usersCount, numOpenTenders, numCloseTenders, numOpenBids, numCloseBids);
+        response = new StatisticsResponse(true,null,statistics);
+        return response;
+    }
+
+
 
     @RequestMapping(value = "get-credit" , method = {RequestMethod.GET, RequestMethod.POST})
     public  BasicResponse getCredit (String token){
@@ -113,4 +122,18 @@ public class LoginController {
         return basicResponse;
 
     }
+
+    @RequestMapping (value = "get-user", method = {RequestMethod.GET, RequestMethod.POST})
+    public BasicResponse getUsername (String token) {
+        User user = persist.getUserByToken(token);
+        BasicResponse basicResponse = null;
+        if (user != null) {
+            basicResponse = new UsernameResponse(true, null, user);
+        } else {
+            basicResponse = new BasicResponse(false, ERROR_NO_SUCH_TOKEN);
+        }
+        return basicResponse;
+    }
+
+
 }

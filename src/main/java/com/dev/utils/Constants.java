@@ -16,10 +16,4 @@ public class Constants {
     public static final int STATUS_ADD_BID = 3;
     public static final int FIRST_DATA = 0;
 
-
-
-
-
-    public static final String EVENT_TYPING = "1";
-
 }
