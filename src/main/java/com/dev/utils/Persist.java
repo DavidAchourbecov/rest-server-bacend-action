@@ -17,10 +17,15 @@ public class Persist {
 
     private final SessionFactory sessionFactory;
 
+
     @Autowired
     public Persist(SessionFactory sf) {
         this.sessionFactory = sf;
+        this.createAdmin();
     }
+
+
+
 
     public User getUserByUsername(String username) {
         User found = null;
@@ -348,6 +353,20 @@ public class Persist {
                 .uniqueResult();
         session.close();
         return user;
+    }
+
+    public void  createAdmin(){
+        User admin = this.getUserByUsername("admin");
+        if (admin == null){
+            Utils utils = new Utils();
+            String token = utils.createHash("admin","123456");
+            admin = new User("admin",token,true);
+            int id=  this.saveUser(admin);
+            admin.setId(id);
+            CreditManagement creditManagement = new CreditManagement(0,admin);
+            this.createAmountUser(creditManagement);
+        }
+
     }
 
 

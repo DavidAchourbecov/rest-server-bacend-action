@@ -25,13 +25,6 @@ import java.util.Set;
 @Configuration
 @Profile("production")
 public class TestConfig {
-
-    @Autowired
-    private Utils utils;
-
-    @Autowired
-    private Persist persist;
-
     @Bean
     public Properties dataSource() throws Exception {
         Properties settings = new Properties();
@@ -70,19 +63,6 @@ public class TestConfig {
         HibernateTransactionManager transactionManager = new HibernateTransactionManager();
         transactionManager.setSessionFactory(sessionFactory());
         return transactionManager;
-    }
-
-    @Bean
-    public void  createAdmin(){
-        User admin = persist.getUserByUsername("admin");
-        if (admin == null){
-            admin = new User("admin",utils.createHash("admin","123456"),true);
-            int id=  persist.saveUser(admin);
-            admin.setId(id);
-            CreditManagement creditManagement = new CreditManagement(0,admin);
-            persist.createAmountUser(creditManagement);
-        }
-
     }
 
 }
